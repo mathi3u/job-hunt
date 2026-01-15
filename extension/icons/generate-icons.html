@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Job Tracker Icons</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; }
+    h1 { margin-bottom: 8px; }
+    p { color: #666; margin-bottom: 24px; }
+    .icons { display: flex; gap: 24px; flex-wrap: wrap; }
+    .icon-box { text-align: center; }
+    canvas { border: 1px solid #ddd; border-radius: 8px; }
+    .size { font-size: 12px; color: #999; margin-top: 4px; }
+    a { display: inline-block; margin-top: 8px; padding: 6px 12px; background: #2563eb; color: white;
+        text-decoration: none; border-radius: 4px; font-size: 13px; }
+    a:hover { background: #1d4ed8; }
+    .instructions { margin-top: 32px; padding: 16px; background: #f3f4f6; border-radius: 8px; }
+    .instructions h3 { margin: 0 0 8px 0; font-size: 14px; }
+    .instructions ol { margin: 0; padding-left: 20px; font-size: 13px; color: #374151; }
+  </style>
+</head>
+<body>
+  <h1>Job Tracker Extension Icons</h1>
+  <p>Click each download button to save the icon, then move them to the extension/icons folder.</p>
+
+  <div class="icons">
+    <div class="icon-box">
+      <canvas id="icon16" width="16" height="16"></canvas>
+      <div class="size">16x16</div>
+      <a id="dl16" download="icon16.png">Download</a>
+    </div>
+    <div class="icon-box">
+      <canvas id="icon48" width="48" height="48"></canvas>
+      <div class="size">48x48</div>
+      <a id="dl48" download="icon48.png">Download</a>
+    </div>
+    <div class="icon-box">
+      <canvas id="icon128" width="128" height="128"></canvas>
+      <div class="size">128x128</div>
+      <a id="dl128" download="icon128.png">Download</a>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h3>After downloading:</h3>
+    <ol>
+      <li>Move icon16.png, icon48.png, icon128.png to extension/icons/</li>
+      <li>Reload the extension in chrome://extensions</li>
+    </ol>
+  </div>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      const padding = Math.round(size * 0.1);
+
+      // Background
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size * 0.15);
+      ctx.fill();
+
+      // Briefcase icon
+      ctx.fillStyle = 'white';
+      const w = size - padding * 2;
+      const h = w * 0.7;
+      const x = padding;
+      const y = padding + w * 0.15;
+
+      // Briefcase body
+      ctx.beginPath();
+      ctx.roundRect(x, y + h * 0.25, w, h * 0.75, size * 0.08);
+      ctx.fill();
+
+      // Handle
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = Math.max(1, size * 0.08);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.3, y + h * 0.25);
+      ctx.lineTo(x + w * 0.3, y + h * 0.1);
+      ctx.lineTo(x + w * 0.7, y + h * 0.1);
+      ctx.lineTo(x + w * 0.7, y + h * 0.25);
+      ctx.stroke();
+
+      // Clasp
+      ctx.fillStyle = '#2563eb';
+      const claspW = w * 0.3;
+      const claspH = h * 0.15;
+      ctx.fillRect(x + (w - claspW) / 2, y + h * 0.5, claspW, claspH);
+    }
+
+    const sizes = [16, 48, 128];
+    sizes.forEach(size => {
+      const canvas = document.getElementById('icon' + size);
+      drawIcon(canvas);
+      document.getElementById('dl' + size).href = canvas.toDataURL('image/png');
+    });
+  </script>
+</body>
+</html>

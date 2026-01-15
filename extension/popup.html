@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Tracker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Job Tracker</h1>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading" class="state">
+      <div class="spinner"></div>
+      <p>Extracting job details...</p>
+    </div>
+
+    <!-- Not Configured State -->
+    <div id="not-configured" class="state hidden">
+      <div class="icon warning">!</div>
+      <p>Make sure the Job Tracker app is running.</p>
+      <button id="open-options" class="btn btn-primary">Settings</button>
+    </div>
+
+    <!-- Not a Job Page State -->
+    <div id="not-job-page" class="state hidden">
+      <div class="icon info">?</div>
+      <p>Navigate to a job posting page to save it.</p>
+      <p class="hint">Supported: LinkedIn, Greenhouse, Lever, Ashby, Workday, and more</p>
+    </div>
+
+    <!-- Extracted Data Preview -->
+    <div id="preview" class="state hidden">
+      <!-- AI Summary -->
+      <div class="field ai-summary hidden">
+        <label>AI Summary</label>
+        <p id="tldr" class="tldr-text"></p>
+      </div>
+
+      <div class="field ai-summary hidden">
+        <label>Key Skills</label>
+        <p id="key-skills" class="skills-text"></p>
+      </div>
+
+      <div class="field">
+        <label>Role</label>
+        <input type="text" id="role" placeholder="Job title">
+      </div>
+      <div class="field">
+        <label>Company</label>
+        <input type="text" id="company" placeholder="Company name">
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input type="text" id="location" placeholder="Location">
+      </div>
+      <div class="field">
+        <label>Portal</label>
+        <input type="text" id="portal" placeholder="Source" readonly>
+      </div>
+      <div class="field">
+        <label>
+          Job Description
+          <span id="content-length" class="hint"></span>
+        </label>
+        <textarea id="job_content" rows="4" placeholder="Full job description..."></textarea>
+      </div>
+      <input type="hidden" id="url">
+
+      <div class="actions">
+        <button id="save-btn" class="btn btn-primary">Save Job</button>
+        <button id="save-open-btn" class="btn btn-secondary">Save & Open</button>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div id="success" class="state hidden">
+      <div class="icon success">✓</div>
+      <p>Job saved successfully!</p>
+      <button id="open-app" class="btn btn-secondary">Open Job Tracker</button>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="state hidden">
+      <div class="icon error">✕</div>
+      <p id="error-message">Something went wrong.</p>
+      <button id="retry-btn" class="btn btn-secondary">Try Again</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
