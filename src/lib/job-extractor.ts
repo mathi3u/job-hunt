@@ -1,5 +1,3 @@
-import type { Job, NextStep } from '@/types'
-
 export type SourceType = 'linkedin' | 'greenhouse' | 'lever' | 'ashby' | 'workday' | 'generic'
 
 export interface ExtractionResult {
@@ -445,32 +443,6 @@ function cleanJobContent(html: string): string {
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]+/g, ' ')
     .trim()
-}
-
-export function createJobFromExtracted(extracted: ExtractedJob): Partial<Job> {
-  return {
-    company: extracted.company,
-    role: extracted.role,
-    location: extracted.location,
-    url: extracted.url,
-    portal: extracted.portal,
-    job_content: extracted.job_content || null,
-    preferred_role: false,
-    next_step: '0-Prepare' as NextStep,
-    next_step_details: null,
-    last_contact: null,
-    first_message_date: null,
-    first_call_date: null,
-    date_posted: null,
-    pdf_url: null,
-    cv_url: null,
-    cover_letter_url: null,
-    working_doc_url: null,
-    application_date: null,
-    interview_date: null,
-    hiring_team: null,
-    notes: null,
-  }
 }
 
 // Parse pasted content (for LinkedIn and other blocked sites)

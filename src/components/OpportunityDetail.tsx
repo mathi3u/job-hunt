@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useOpportunityDetail } from '@/hooks/usePipeline'
 import { supabase } from '@/lib/supabase'
+import { CVSelector } from '@/components/CVSelector'
 import type { OpportunityStatus, InterviewType } from '@/types'
 import {
   STATUS_LABELS,
@@ -358,14 +359,11 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-purple-800 mb-1">
-                        CV/Resume Used (URL or filename)
+                        CV/Resume Used
                       </label>
-                      <input
-                        type="text"
+                      <CVSelector
                         value={applicationDetails.resume_url}
-                        onChange={(e) => setApplicationDetails({ ...applicationDetails, resume_url: e.target.value })}
-                        placeholder="Link to CV or filename"
-                        className="w-full rounded-md border border-purple-300 px-3 py-2 text-sm"
+                        onChange={(url) => setApplicationDetails({ ...applicationDetails, resume_url: url })}
                       />
                     </div>
                     <div className="flex gap-2">

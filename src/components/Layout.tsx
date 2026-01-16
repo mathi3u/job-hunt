@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, GitBranch } from 'lucide-react'
+import { LayoutDashboard, GitBranch, FileText } from 'lucide-react'
 
 export function Layout() {
   return (
@@ -33,6 +33,19 @@ export function Layout() {
             >
               <GitBranch className="h-4 w-4" />
               Pipeline
+            </NavLink>
+            <NavLink
+              to="/cv-bank"
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`
+              }
+            >
+              <FileText className="h-4 w-4" />
+              CV Bank
             </NavLink>
           </nav>
         </div>

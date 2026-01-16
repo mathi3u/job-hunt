@@ -64,6 +64,8 @@ export type CommType =
   | 'referral_intro'
   | 'follow_up'
 
+export type DocType = 'cv' | 'cover_letter' | 'other'
+
 // ============================================================================
 // ENTITIES
 // ============================================================================
@@ -196,6 +198,19 @@ export interface Communication {
   updated_at: string
 }
 
+export interface CVDocument {
+  id: string
+  name: string
+  description: string | null
+  file_path: string
+  file_type: string | null
+  file_size: number | null
+  doc_type: DocType
+  is_default: boolean
+  created_at: string
+  updated_at: string
+}
+
 // ============================================================================
 // JOINED/VIEW TYPES
 // ============================================================================
@@ -316,5 +331,11 @@ export const STAGE_LABELS: Record<InterviewStage, string> = {
   reference_check: 'References',
   offer: 'Offer',
   negotiation: 'Negotiation',
+}
+
+export const DOC_TYPE_LABELS: Record<DocType, string> = {
+  cv: 'CV / Resume',
+  cover_letter: 'Cover Letter',
+  other: 'Other',
 }
 
