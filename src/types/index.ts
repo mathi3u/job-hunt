@@ -85,6 +85,17 @@ export type ContactRelationship =
   | 'alumni'
   | 'other'
 
+export type ContactType =
+  | 'linkedin_message'
+  | 'linkedin_inmail'
+  | 'email'
+  | 'phone'
+  | 'coffee_chat'
+  | 'video_call'
+  | 'in_person'
+  | 'event'
+  | 'referral_intro'
+
 // ============================================================================
 // ENTITIES
 // ============================================================================
@@ -116,8 +127,14 @@ export interface Contact {
   relationship: ContactRelationship | null
   notes: string | null
   last_contacted_at: string | null
+  last_contact_type: ContactType | null
   next_followup_date: string | null
+  next_contact_type: ContactType | null
+  source: string | null
   warmth: number | null
+  skype: string | null
+  office_address: string | null
+  angelist_url: string | null
   created_at: string
   updated_at: string
 }
@@ -397,5 +414,17 @@ export const RELATIONSHIP_COLORS: Record<ContactRelationship, string> = {
   friend: 'bg-pink-100 text-pink-800',
   alumni: 'bg-indigo-100 text-indigo-800',
   other: 'bg-gray-100 text-gray-600',
+}
+
+export const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
+  linkedin_message: 'LinkedIn Message',
+  linkedin_inmail: 'LinkedIn InMail',
+  email: 'Email',
+  phone: 'Phone Call',
+  coffee_chat: 'Coffee Chat',
+  video_call: 'Video Call',
+  in_person: 'In Person',
+  event: 'Event/Conference',
+  referral_intro: 'Referral Intro',
 }
 

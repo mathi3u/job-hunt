@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Contact, ContactRelationship, Company } from '@/types'
+import type { Contact, ContactRelationship, ContactType, Company } from '@/types'
 
 export interface ContactWithCompany extends Contact {
   company: Company | null
@@ -52,7 +52,14 @@ export function useContacts(companyId?: string) {
     relationship?: ContactRelationship
     notes?: string
     warmth?: number
+    last_contacted_at?: string
+    last_contact_type?: ContactType
     next_followup_date?: string
+    next_contact_type?: ContactType
+    source?: string
+    skype?: string
+    office_address?: string
+    angelist_url?: string
   }): Promise<Contact | null> => {
     const { data, error: insertError } = await supabase
       .from('contacts')
@@ -66,7 +73,14 @@ export function useContacts(companyId?: string) {
         relationship: contact.relationship || null,
         notes: contact.notes || null,
         warmth: contact.warmth || null,
+        last_contacted_at: contact.last_contacted_at || null,
+        last_contact_type: contact.last_contact_type || null,
         next_followup_date: contact.next_followup_date || null,
+        next_contact_type: contact.next_contact_type || null,
+        source: contact.source || null,
+        skype: contact.skype || null,
+        office_address: contact.office_address || null,
+        angelist_url: contact.angelist_url || null,
       })
       .select()
       .single()
@@ -78,6 +92,62 @@ export function useContacts(companyId?: string) {
 
     await fetchContacts()
     return data as Contact
+  }
+
+  const importContacts = async (contacts: Array<{
+    name: string
+    company_id?: string
+    role?: string
+    email?: string
+    phone?: string
+    linkedin_url?: string
+    relationship?: ContactRelationship
+    notes?: string
+    warmth?: number
+    last_contacted_at?: string
+    last_contact_type?: ContactType
+    next_followup_date?: string
+    next_contact_type?: ContactType
+    source?: string
+    skype?: string
+    office_address?: string
+    angelist_url?: string
+  }>): Promise<{ success: number; failed: number }> => {
+    let success = 0
+    let failed = 0
+
+    for (const contact of contacts) {
+      const { error: insertError } = await supabase
+        .from('contacts')
+        .insert({
+          name: contact.name,
+          company_id: contact.company_id || null,
+          role: contact.role || null,
+          email: contact.email || null,
+          phone: contact.phone || null,
+          linkedin_url: contact.linkedin_url || null,
+          relationship: contact.relationship || null,
+          notes: contact.notes || null,
+          warmth: contact.warmth || null,
+          last_contacted_at: contact.last_contacted_at || null,
+          last_contact_type: contact.last_contact_type || null,
+          next_followup_date: contact.next_followup_date || null,
+          next_contact_type: contact.next_contact_type || null,
+          source: contact.source || null,
+          skype: contact.skype || null,
+          office_address: contact.office_address || null,
+          angelist_url: contact.angelist_url || null,
+        })
+
+      if (insertError) {
+        failed++
+      } else {
+        success++
+      }
+    }
+
+    await fetchContacts()
+    return { success, failed }
   }
 
   const updateContact = async (
@@ -126,6 +196,7 @@ export function useContacts(companyId?: string) {
     updateContact,
     deleteContact,
     markContacted,
+    importContacts,
   }
 }
 

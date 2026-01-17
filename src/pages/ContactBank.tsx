@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { format, formatDistanceToNow, isPast, isToday } from 'date-fns'
+import { useState, useEffect, useRef } from 'react'
+import { format, formatDistanceToNow, isPast, isToday, parse } from 'date-fns'
 import {
   Users,
   Plus,
@@ -12,11 +12,13 @@ import {
   Phone,
   Calendar,
   Search,
+  Upload,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { useContacts, type ContactWithCompany } from '@/hooks/useContacts'
 import { supabase } from '@/lib/supabase'
-import type { ContactRelationship, Company } from '@/types'
-import { RELATIONSHIP_LABELS, RELATIONSHIP_COLORS } from '@/types'
+import type { ContactRelationship, ContactType, Company } from '@/types'
+import { RELATIONSHIP_LABELS, RELATIONSHIP_COLORS, CONTACT_TYPE_LABELS } from '@/types'
 
 const WARMTH_COLORS = [
   'bg-gray-200',
@@ -26,8 +28,44 @@ const WARMTH_COLORS = [
   'bg-orange-500',
 ]
 
+// Parse date strings like "Mar 22", "Apr 14", etc.
+function parseShortDate(dateStr: string | undefined): string | undefined {
+  if (!dateStr) return undefined
+  try {
+    // Try parsing "Mar 22" format (assumes current year)
+    const parsed = parse(dateStr.trim(), 'MMM d', new Date())
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toISOString()
+    }
+    // Try parsing "Apr 14" with year
+    const withYear = parse(dateStr.trim(), 'MMM d yyyy', new Date())
+    if (!isNaN(withYear.getTime())) {
+      return withYear.toISOString()
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return undefined
+}
+
+// Map contact type from spreadsheet to our enum
+function mapContactType(typeStr: string | undefined): ContactType | undefined {
+  if (!typeStr) return undefined
+  const lower = typeStr.toLowerCase()
+  if (lower.includes('linkedin') && lower.includes('inmail')) return 'linkedin_inmail'
+  if (lower.includes('linkedin')) return 'linkedin_message'
+  if (lower.includes('email')) return 'email'
+  if (lower.includes('phone') || lower.includes('call')) return 'phone'
+  if (lower.includes('coffee')) return 'coffee_chat'
+  if (lower.includes('video') || lower.includes('skype')) return 'video_call'
+  if (lower.includes('person') || lower.includes('meeting')) return 'in_person'
+  if (lower.includes('event') || lower.includes('conf')) return 'event'
+  if (lower.includes('referral') || lower.includes('intro')) return 'referral_intro'
+  return undefined
+}
+
 export function ContactBank() {
-  const { contacts, loading, error, createContact, updateContact, deleteContact } = useContacts()
+  const { contacts, loading, error, createContact, updateContact, deleteContact, importContacts } = useContacts()
   const [companies, setCompanies] = useState<Company[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [filterRelationship, setFilterRelationship] = useState<ContactRelationship | ''>('')
@@ -73,6 +111,13 @@ export function ContactBank() {
 
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Import state
+  const [showImport, setShowImport] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importPreview, setImportPreview] = useState<Array<Record<string, string>>>([])
+  const [importResult, setImportResult] = useState<{ success: number; failed: number } | null>(null)
+  const csvInputRef = useRef<HTMLInputElement>(null)
 
   const resetAddForm = () => {
     setAddName('')
@@ -145,6 +190,73 @@ export function ContactBank() {
     setDeletingId(null)
   }
 
+  const handleCsvSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const text = event.target?.result as string
+      const lines = text.split('\n').filter(line => line.trim())
+      if (lines.length < 2) return
+
+      // Parse CSV header
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+
+      // Parse rows
+      const rows: Array<Record<string, string>> = []
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''))
+        const row: Record<string, string> = {}
+        headers.forEach((header, idx) => {
+          row[header] = values[idx] || ''
+        })
+        if (row['Contact Name']) {
+          rows.push(row)
+        }
+      }
+
+      setImportPreview(rows)
+      setShowImport(true)
+    }
+    reader.readAsText(file)
+  }
+
+  const handleImport = async () => {
+    if (importPreview.length === 0) return
+
+    setImporting(true)
+
+    // Map spreadsheet columns to our contact fields
+    const contactsToImport = importPreview.map(row => ({
+      name: row['Contact Name'] || '',
+      email: row['Email'] || undefined,
+      phone: row['Phone'] || undefined,
+      linkedin_url: row['LkIn Prof'] || undefined,
+      notes: row['Notes'] || undefined,
+      source: row['Source'] || undefined,
+      skype: row['Skype'] || undefined,
+      office_address: row['Office'] || undefined,
+      angelist_url: row['Angelist'] || undefined,
+      last_contacted_at: parseShortDate(row['Last Date']),
+      last_contact_type: mapContactType(row['Last Type']),
+      next_followup_date: parseShortDate(row['Next Date'])?.split('T')[0],
+      next_contact_type: mapContactType(row['Next Type']),
+    })).filter(c => c.name)
+
+    const result = await importContacts(contactsToImport)
+    setImportResult(result)
+    setImporting(false)
+
+    // Reset after showing result
+    setTimeout(() => {
+      setShowImport(false)
+      setImportPreview([])
+      setImportResult(null)
+      if (csvInputRef.current) csvInputRef.current.value = ''
+    }, 3000)
+  }
+
   // Filter contacts
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch =
@@ -184,14 +296,115 @@ export function ContactBank() {
           <h1 className="text-2xl font-bold text-gray-900">Contact Bank</h1>
           <p className="text-gray-600">Manage your professional network and relationships</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
-        >
-          <Plus className="h-5 w-5" />
-          Add Contact
-        </button>
+        <div className="flex gap-2">
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv"
+            onChange={handleCsvSelect}
+            className="hidden"
+          />
+          <button
+            onClick={() => csvInputRef.current?.click()}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Upload className="h-5 w-5" />
+            Import CSV
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 font-medium text-white hover:bg-primary-700"
+          >
+            <Plus className="h-5 w-5" />
+            Add Contact
+          </button>
+        </div>
       </div>
+
+      {/* Import Preview */}
+      {showImport && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <FileSpreadsheet className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Import Preview</h2>
+          </div>
+
+          {importResult ? (
+            <div className="text-center py-4">
+              <p className="text-lg font-medium text-green-600">
+                Imported {importResult.success} contacts
+                {importResult.failed > 0 && (
+                  <span className="text-red-600"> ({importResult.failed} failed)</span>
+                )}
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600 mb-4">
+                Found {importPreview.length} contacts to import:
+              </p>
+              <div className="max-h-48 overflow-auto bg-white rounded border border-gray-200 mb-4">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 sticky top-0">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">Name</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">Source</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">Email</th>
+                      <th className="px-3 py-2 text-left font-medium text-gray-700">Last Contact</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importPreview.slice(0, 10).map((row, idx) => (
+                      <tr key={idx} className="border-t">
+                        <td className="px-3 py-2">{row['Contact Name']}</td>
+                        <td className="px-3 py-2 text-gray-500">{row['Source']}</td>
+                        <td className="px-3 py-2 text-gray-500">{row['Email']}</td>
+                        <td className="px-3 py-2 text-gray-500">{row['Last Date']}</td>
+                      </tr>
+                    ))}
+                    {importPreview.length > 10 && (
+                      <tr className="border-t">
+                        <td colSpan={4} className="px-3 py-2 text-center text-gray-500">
+                          ...and {importPreview.length - 10} more
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleImport}
+                  disabled={importing}
+                  className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {importing ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      Import {importPreview.length} Contacts
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowImport(false)
+                    setImportPreview([])
+                    if (csvInputRef.current) csvInputRef.current.value = ''
+                  }}
+                  className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
@@ -569,14 +782,21 @@ export function ContactBank() {
                       )}
                     </div>
 
-                    {/* Relationship badge */}
-                    {contact.relationship && (
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${RELATIONSHIP_COLORS[contact.relationship]}`}
-                      >
-                        {RELATIONSHIP_LABELS[contact.relationship]}
-                      </span>
-                    )}
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-1">
+                      {contact.relationship && (
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${RELATIONSHIP_COLORS[contact.relationship]}`}
+                        >
+                          {RELATIONSHIP_LABELS[contact.relationship]}
+                        </span>
+                      )}
+                      {contact.source && (
+                        <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                          {contact.source}
+                        </span>
+                      )}
+                    </div>
 
                     {/* Meta info */}
                     <div className="mt-3 space-y-1 text-xs text-gray-500">
@@ -596,7 +816,8 @@ export function ContactBank() {
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
                           <span>
-                            Last contact: {formatDistanceToNow(new Date(contact.last_contacted_at), { addSuffix: true })}
+                            Last: {formatDistanceToNow(new Date(contact.last_contacted_at), { addSuffix: true })}
+                            {contact.last_contact_type && ` (${CONTACT_TYPE_LABELS[contact.last_contact_type]})`}
                           </span>
                         </div>
                       )}
