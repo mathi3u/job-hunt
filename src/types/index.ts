@@ -137,6 +137,7 @@ export interface JobPosting {
   company_id: string | null
   role: string
   url: string | null
+  company_url: string | null
   portal: string | null
   posted_date: string | null
   deadline_date: string | null

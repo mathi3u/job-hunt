@@ -34,6 +34,12 @@
 
     <!-- Extracted Data Preview -->
     <div id="preview" class="state hidden">
+      <!-- Duplicate Warning -->
+      <div id="duplicate-warning" class="warning-banner hidden">
+        <span class="warning-icon">⚠️</span>
+        <span id="duplicate-message">You may have already saved this job.</span>
+      </div>
+
       <!-- AI Summary -->
       <div class="field ai-summary hidden">
         <label>AI Summary</label>
@@ -62,13 +68,20 @@
         <input type="text" id="portal" placeholder="Source" readonly>
       </div>
       <div class="field">
+        <label>Portal URL</label>
+        <input type="text" id="url" placeholder="Job posting URL" readonly>
+      </div>
+      <div class="field">
+        <label>Company Website URL <span class="hint">(optional)</span></label>
+        <input type="text" id="company_url" placeholder="Direct link to job on company website">
+      </div>
+      <div class="field">
         <label>
           Job Description
           <span id="content-length" class="hint"></span>
         </label>
         <textarea id="job_content" rows="4" placeholder="Full job description..."></textarea>
       </div>
-      <input type="hidden" id="url">
 
       <div class="actions">
         <button id="save-btn" class="btn btn-primary">Save Job</button>

@@ -20,8 +20,12 @@
     portal: document.getElementById('portal'),
     job_content: document.getElementById('job_content'),
     url: document.getElementById('url'),
+    company_url: document.getElementById('company_url'),
     contentLength: document.getElementById('content-length')
   };
+
+  const duplicateWarning = document.getElementById('duplicate-warning');
+  const duplicateMessage = document.getElementById('duplicate-message');
 
   const buttons = {
     openOptions: document.getElementById('open-options'),
@@ -143,6 +147,25 @@
     });
   }
 
+  // Check for duplicate jobs
+  async function checkDuplicate(url, company, role) {
+    try {
+      const response = await fetch(`${appUrl}/api/check-duplicate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, company, role })
+      });
+
+      if (!response.ok) return null;
+
+      const result = await response.json();
+      return result;
+    } catch (err) {
+      console.error('Duplicate check failed:', err);
+      return null;
+    }
+  }
+
   // Save job via local server
   async function saveJob(openAfter = false) {
     buttons.save.disabled = true;
@@ -156,6 +179,7 @@
       role: fields.role.value,
       location: fields.location.value,
       url: fields.url.value,
+      company_url: fields.company_url.value || null,
       portal: fields.portal.value,
       job_content: fields.job_content.value,
       hiring_team: extraData.hiring_team || '',
@@ -189,7 +213,7 @@
   }
 
   // Populate form with extracted data
-  function populateForm(data) {
+  async function populateForm(data) {
     console.log('Populating form with:', data);
 
     fields.role.value = data.role || '';
@@ -198,6 +222,7 @@
     fields.portal.value = data.portal || '';
     fields.job_content.value = data.job_content || '';
     fields.url.value = data.url || '';
+    fields.company_url.value = '';  // User fills this in manually
 
     // Update content length indicator
     const len = (data.job_content || '').length;
@@ -219,6 +244,20 @@
 
     // Store extra fields for saving
     window._extractedData = data;
+
+    // Check for duplicates
+    const duplicateResult = await checkDuplicate(data.url, data.company, data.role);
+    if (duplicateResult && duplicateResult.isDuplicate) {
+      const job = duplicateResult.existingJob;
+      let message = 'You may have already saved this job';
+      if (job.status) {
+        message += ` (Status: ${job.status})`;
+      }
+      duplicateMessage.textContent = message;
+      duplicateWarning.classList.remove('hidden');
+    } else {
+      duplicateWarning.classList.add('hidden');
+    }
 
     showState('preview');
   }
@@ -259,7 +298,7 @@
     // Try to extract job data
     try {
       const data = await extractJobData();
-      populateForm(data);
+      await populateForm(data);
     } catch (err) {
       if (err.message === 'not_job_page') {
         showState('notJobPage');

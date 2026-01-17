@@ -176,6 +176,114 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
         next()
       })
 
+      // Duplicate check endpoint
+      server.middlewares.use('/api/check-duplicate', async (req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        if (req.method === 'POST') {
+          let body = ''
+          req.on('data', (chunk) => { body += chunk })
+          req.on('end', async () => {
+            try {
+              const { url, company, role } = JSON.parse(body)
+
+              const supabaseUrl = env.VITE_SUPABASE_URL
+              const supabaseKey = env.VITE_SUPABASE_ANON_KEY
+
+              if (!supabaseUrl || !supabaseKey) {
+                res.statusCode = 500
+                res.end(JSON.stringify({ error: 'Supabase not configured' }))
+                return
+              }
+
+              const headers = {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+              }
+
+              // Check by URL first (exact match)
+              if (url) {
+                const urlCheck = await fetch(
+                  `${supabaseUrl}/rest/v1/job_postings?url=eq.${encodeURIComponent(url)}&select=id,role,opportunity_id,opportunities(status)`,
+                  { headers }
+                )
+                const urlMatches = await urlCheck.json()
+
+                if (urlMatches.length > 0) {
+                  const match = urlMatches[0]
+                  res.setHeader('Content-Type', 'application/json')
+                  res.end(JSON.stringify({
+                    isDuplicate: true,
+                    matchType: 'url',
+                    existingJob: {
+                      id: match.id,
+                      role: match.role,
+                      status: match.opportunities?.status || 'unknown'
+                    }
+                  }))
+                  return
+                }
+              }
+
+              // Check by company + role (fuzzy match)
+              if (company && role) {
+                const companyCheck = await fetch(
+                  `${supabaseUrl}/rest/v1/companies?name=ilike.${encodeURIComponent(company)}&select=id,name`,
+                  { headers }
+                )
+                const companies = await companyCheck.json()
+
+                if (companies.length > 0) {
+                  const companyId = companies[0].id
+                  const roleCheck = await fetch(
+                    `${supabaseUrl}/rest/v1/job_postings?company_id=eq.${companyId}&role=ilike.${encodeURIComponent(role)}&select=id,role,opportunity_id,opportunities(status)`,
+                    { headers }
+                  )
+                  const roleMatches = await roleCheck.json()
+
+                  if (roleMatches.length > 0) {
+                    const match = roleMatches[0]
+                    res.setHeader('Content-Type', 'application/json')
+                    res.end(JSON.stringify({
+                      isDuplicate: true,
+                      matchType: 'company_role',
+                      existingJob: {
+                        id: match.id,
+                        role: match.role,
+                        company: companies[0].name,
+                        status: match.opportunities?.status || 'unknown'
+                      }
+                    }))
+                    return
+                  }
+                }
+              }
+
+              // No duplicate found
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ isDuplicate: false }))
+
+            } catch (err) {
+              console.error('Duplicate check error:', err)
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: (err as Error).message }))
+            }
+          })
+          return
+        }
+
+        next()
+      })
+
       server.middlewares.use('/api/jobs', async (req, res, next) => {
         // Handle CORS for extension
         res.setHeader('Access-Control-Allow-Origin', '*')
@@ -326,6 +434,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                   company_id: companyId,
                   role: jobData.role || null,
                   url: jobData.url || null,
+                  company_url: jobData.company_url || null,
                   portal: jobData.portal || null,
                   posted_date: parseRelativeDate(jobData.date_posted),
                   location: jobData.location || null,

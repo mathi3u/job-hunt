@@ -225,3 +225,29 @@ body {
   color: #0369a1;
   margin: 0;
 }
+
+/* Warning Banner */
+.warning-banner {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.warning-banner.hidden {
+  display: none;
+}
+
+.warning-icon {
+  font-size: 16px;
+}
+
+#duplicate-message {
+  font-size: 12px;
+  color: #92400e;
+  font-weight: 500;
+}
