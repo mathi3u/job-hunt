@@ -41,6 +41,24 @@
         <button id="open-existing-btn" class="btn-link">View</button>
       </div>
 
+      <!-- Main Info (Role + Company) -->
+      <div class="main-info">
+        <div class="field">
+          <label>Role</label>
+          <input type="text" id="role" placeholder="Job title" class="input-large">
+        </div>
+        <div class="field-row">
+          <div class="field flex-1">
+            <label>Company</label>
+            <input type="text" id="company" placeholder="Company name">
+          </div>
+          <div class="field flex-1">
+            <label>Location</label>
+            <input type="text" id="location" placeholder="Location">
+          </div>
+        </div>
+      </div>
+
       <!-- AI Summary -->
       <div class="field ai-summary hidden">
         <label>AI Summary</label>
@@ -52,37 +70,31 @@
         <p id="key-skills" class="skills-text"></p>
       </div>
 
-      <div class="field">
-        <label>Role</label>
-        <input type="text" id="role" placeholder="Job title">
-      </div>
-      <div class="field">
-        <label>Company</label>
-        <input type="text" id="company" placeholder="Company name">
-      </div>
-      <div class="field">
-        <label>Location</label>
-        <input type="text" id="location" placeholder="Location">
-      </div>
-      <div class="field">
-        <label>Portal</label>
-        <input type="text" id="portal" placeholder="Source" readonly>
-      </div>
-      <div class="field">
-        <label>Portal URL</label>
-        <input type="text" id="url" placeholder="Job posting URL" readonly>
-      </div>
-      <div class="field">
-        <label>Company Website URL <span class="hint">(optional)</span></label>
-        <input type="text" id="company_url" placeholder="Direct link to job on company website">
-      </div>
-      <div class="field">
-        <label>
-          Job Description
-          <span id="content-length" class="hint"></span>
-        </label>
-        <textarea id="job_content" rows="4" placeholder="Full job description..."></textarea>
-      </div>
+      <!-- URLs (collapsible) -->
+      <details class="url-details">
+        <summary>URLs & Details</summary>
+        <div class="details-content">
+          <div class="field">
+            <label>Portal</label>
+            <input type="text" id="portal" placeholder="Source" readonly>
+          </div>
+          <div class="field">
+            <label>Portal URL</label>
+            <input type="text" id="url" placeholder="Job posting URL" readonly>
+          </div>
+          <div class="field">
+            <label>Company Website URL <span class="hint">(optional)</span></label>
+            <input type="text" id="company_url" placeholder="Direct link to job on company website">
+          </div>
+          <div class="field">
+            <label>
+              Job Description
+              <span id="content-length" class="hint"></span>
+            </label>
+            <textarea id="job_content" rows="3" placeholder="Full job description..."></textarea>
+          </div>
+        </div>
+      </details>
 
       <div class="actions">
         <button id="save-btn" class="btn btn-primary">Save Job</button>

@@ -1,17 +1,29 @@
-import { format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 import {
   Building2,
-  MapPin,
   Calendar,
-  ExternalLink,
   Trash2,
   ChevronRight,
   DollarSign,
   Users,
   Clock,
+  Briefcase,
+  UserPlus,
+  Globe,
+  Mail,
 } from 'lucide-react'
-import type { PipelineItem, OpportunityStatus } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS } from '@/types'
+import type { PipelineItem, OpportunityStatus, OpportunitySource } from '@/types'
+import { STATUS_LABELS, STATUS_COLORS, SOURCE_LABELS } from '@/types'
+
+const SOURCE_ICONS: Record<OpportunitySource, typeof Briefcase> = {
+  job_board: Briefcase,
+  company_website: Globe,
+  referral: UserPlus,
+  recruiter_outreach: Mail,
+  networking: Users,
+  career_fair: Users,
+  cold_outreach: Mail,
+}
 
 interface OpportunityCardProps {
   item: PipelineItem
@@ -46,6 +58,8 @@ function PriorityIndicator({ priority }: { priority: number }) {
 export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps) {
   const role = item.posting_role || item.title || 'Untitled Role'
   const company = item.company_name || 'Unknown Company'
+  const SourceIcon = item.source ? SOURCE_ICONS[item.source] : Briefcase
+  const timeAgo = formatDistanceToNow(new Date(item.created_at), { addSuffix: true })
 
   return (
     <div
@@ -53,20 +67,24 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
       onClick={() => onView(item)}
     >
       <div className="flex items-start justify-between">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <PriorityIndicator priority={item.priority} />
-            <h3 className="font-semibold text-gray-900">{role}</h3>
+            <h3 className="font-semibold text-gray-900 truncate">{role}</h3>
           </div>
-          <div className="mt-1 flex items-center gap-1 text-sm text-gray-600">
-            <Building2 className="h-4 w-4" />
-            <span>{company}</span>
-            {item.industry && (
-              <span className="text-gray-400">({item.industry})</span>
+          <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-1">
+              <Building2 className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{company}</span>
+            </div>
+            {item.source && (
+              <div className="flex items-center gap-1 text-gray-400" title={SOURCE_LABELS[item.source]}>
+                <SourceIcon className="h-3.5 w-3.5" />
+              </div>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <StatusBadge status={item.status} />
           <button
             onClick={(e) => {
@@ -81,6 +99,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
         </div>
       </div>
 
+      {/* Key metrics row */}
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
         {item.salary_range && (
           <div className="flex items-center gap-1">
@@ -88,36 +107,38 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
             <span>{item.salary_range}</span>
           </div>
         )}
-        {item.posted_date && (
-          <div className="flex items-center gap-1">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Posted {format(new Date(item.posted_date), 'MMM d')}</span>
+        {item.next_interview && (
+          <div className="flex items-center gap-1 font-medium text-indigo-600">
+            <Clock className="h-3.5 w-3.5" />
+            <span>Interview {format(new Date(item.next_interview), 'MMM d')}</span>
           </div>
         )}
-        {item.interview_count > 0 && (
+        {item.interview_count > 0 && !item.next_interview && (
           <div className="flex items-center gap-1">
             <Users className="h-3.5 w-3.5" />
             <span>{item.interview_count} interview{item.interview_count !== 1 ? 's' : ''}</span>
           </div>
         )}
-        {item.next_interview && (
-          <div className="flex items-center gap-1 text-indigo-600">
-            <Clock className="h-3.5 w-3.5" />
-            <span>Next: {format(new Date(item.next_interview), 'MMM d, h:mm a')}</span>
-          </div>
-        )}
-        {item.comm_count > 0 && (
-          <div className="text-xs text-gray-400">
-            {item.comm_count} communication{item.comm_count !== 1 ? 's' : ''}
+        {item.posted_date && (
+          <div className="flex items-center gap-1 text-gray-400">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>Posted {format(new Date(item.posted_date), 'MMM d')}</span>
           </div>
         )}
       </div>
 
-      {item.interview_stage && item.status === 'interviewing' && (
-        <div className="mt-2 rounded bg-indigo-50 px-2 py-1 text-sm text-indigo-700">
-          Stage: {item.interview_stage.replace('_', ' ')}
+      {/* Status-specific info */}
+      <div className="mt-2 flex items-center justify-between">
+        {item.interview_stage && item.status === 'interviewing' && (
+          <div className="rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700">
+            {item.interview_stage.replace('_', ' ')}
+          </div>
+        )}
+        {!item.interview_stage && <div />}
+        <div className="text-xs text-gray-400">
+          Added {timeAgo}
         </div>
-      )}
+      </div>
     </div>
   )
 }

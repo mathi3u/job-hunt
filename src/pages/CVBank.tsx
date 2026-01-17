@@ -23,7 +23,15 @@ function formatFileSize(bytes: number | null): string {
 }
 
 export function CVBank() {
-  const { documents, loading, error, uploadDocument, updateDocument, deleteDocument, setDefaultDocument, getPublicUrl } = useDocuments('cv')
+  const { documents, loading, error, uploadDocument, updateDocument, deleteDocument, setDefaultDocument, getSignedUrl } = useDocuments('cv')
+
+  // View document handler
+  const handleViewDocument = async (filePath: string) => {
+    const url = await getSignedUrl(filePath)
+    if (url) {
+      window.open(url, '_blank')
+    }
+  }
 
   // Upload state
   const [uploading, setUploading] = useState(false)
@@ -38,6 +46,7 @@ export function CVBank() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const [editLanguage, setEditLanguage] = useState<DocLanguage>('en')
 
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -76,6 +85,7 @@ export function CVBank() {
     setEditingId(doc.id)
     setEditName(doc.name)
     setEditDescription(doc.description || '')
+    setEditLanguage(doc.language)
   }
 
   const handleSaveEdit = async () => {
@@ -84,6 +94,7 @@ export function CVBank() {
     await updateDocument(editingId, {
       name: editName.trim(),
       description: editDescription.trim() || undefined,
+      language: editLanguage,
     })
     setEditingId(null)
   }
@@ -309,6 +320,17 @@ export function CVBank() {
                     rows={2}
                     placeholder="Description"
                   />
+                  <select
+                    value={editLanguage}
+                    onChange={(e) => setEditLanguage(e.target.value as DocLanguage)}
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                  >
+                    {(Object.keys(DOC_LANGUAGE_LABELS) as DocLanguage[]).map((lang) => (
+                      <option key={lang} value={lang}>
+                        {DOC_LANGUAGE_LABELS[lang]}
+                      </option>
+                    ))}
+                  </select>
                   <div className="flex gap-2">
                     <button
                       onClick={handleSaveEdit}
@@ -348,15 +370,13 @@ export function CVBank() {
 
                   {/* Actions */}
                   <div className="flex flex-wrap gap-2">
-                    <a
-                      href={getPublicUrl(doc.file_path)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleViewDocument(doc.file_path)}
                       className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
                     >
                       <ExternalLink className="h-3 w-3" />
                       View
-                    </a>
+                    </button>
                     <button
                       onClick={() => handleEdit(doc)}
                       className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"

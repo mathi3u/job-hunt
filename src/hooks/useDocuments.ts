@@ -38,9 +38,16 @@ export function useDocuments(docType?: DocType) {
     fetchDocuments()
   }, [fetchDocuments])
 
-  const getPublicUrl = (filePath: string): string => {
-    const { data } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath)
-    return data.publicUrl
+  const getSignedUrl = async (filePath: string): Promise<string | null> => {
+    const { data, error } = await supabase.storage
+      .from(BUCKET_NAME)
+      .createSignedUrl(filePath, 3600) // 1 hour expiry
+
+    if (error) {
+      console.error('Failed to get signed URL:', error)
+      return null
+    }
+    return data.signedUrl
   }
 
   const uploadDocument = async (
@@ -94,7 +101,7 @@ export function useDocuments(docType?: DocType) {
 
   const updateDocument = async (
     id: string,
-    updates: { name?: string; description?: string }
+    updates: { name?: string; description?: string; language?: DocLanguage }
   ): Promise<boolean> => {
     const { error: updateError } = await supabase
       .from('documents')
@@ -175,7 +182,7 @@ export function useDocuments(docType?: DocType) {
     loading,
     error,
     refetch: fetchDocuments,
-    getPublicUrl,
+    getSignedUrl,
     uploadDocument,
     updateDocument,
     deleteDocument,

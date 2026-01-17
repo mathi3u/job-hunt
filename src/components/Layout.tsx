@@ -10,11 +10,12 @@ export function Layout() {
           <nav className="flex items-center gap-1">
             <NavLink
               to="/"
+              end
               className={({ isActive }) =>
-                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors border-b-2 ${
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'border-primary-600 bg-primary-50 text-primary-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`
               }
             >
@@ -24,10 +25,10 @@ export function Layout() {
             <NavLink
               to="/pipeline"
               className={({ isActive }) =>
-                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors border-b-2 ${
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'border-primary-600 bg-primary-50 text-primary-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`
               }
             >
@@ -37,10 +38,10 @@ export function Layout() {
             <NavLink
               to="/cv-bank"
               className={({ isActive }) =>
-                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors border-b-2 ${
                   isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'border-primary-600 bg-primary-50 text-primary-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`
               }
             >
