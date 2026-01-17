@@ -12,7 +12,8 @@ import {
   Plus,
 } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
-import type { CVDocument } from '@/types'
+import type { CVDocument, DocLanguage } from '@/types'
+import { DOC_LANGUAGE_LABELS } from '@/types'
 
 function formatFileSize(bytes: number | null): string {
   if (!bytes) return 'Unknown'
@@ -29,6 +30,7 @@ export function CVBank() {
   const [showUploadForm, setShowUploadForm] = useState(false)
   const [uploadName, setUploadName] = useState('')
   const [uploadDescription, setUploadDescription] = useState('')
+  const [uploadLanguage, setUploadLanguage] = useState<DocLanguage>('en')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -56,13 +58,14 @@ export function CVBank() {
     if (!selectedFile || !uploadName.trim()) return
 
     setUploading(true)
-    await uploadDocument(selectedFile, uploadName.trim(), uploadDescription.trim() || undefined, 'cv')
+    await uploadDocument(selectedFile, uploadName.trim(), uploadDescription.trim() || undefined, 'cv', uploadLanguage)
     setUploading(false)
 
     // Reset form
     setSelectedFile(null)
     setUploadName('')
     setUploadDescription('')
+    setUploadLanguage('en')
     setShowUploadForm(false)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -183,6 +186,24 @@ export function CVBank() {
               />
             </div>
 
+            {/* Language */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Language
+              </label>
+              <select
+                value={uploadLanguage}
+                onChange={(e) => setUploadLanguage(e.target.value as DocLanguage)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+              >
+                {(Object.keys(DOC_LANGUAGE_LABELS) as DocLanguage[]).map((lang) => (
+                  <option key={lang} value={lang}>
+                    {DOC_LANGUAGE_LABELS[lang]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Actions */}
             <div className="flex gap-3">
               <button
@@ -208,6 +229,7 @@ export function CVBank() {
                   setSelectedFile(null)
                   setUploadName('')
                   setUploadDescription('')
+                  setUploadLanguage('en')
                 }}
                 className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
               >
@@ -321,7 +343,7 @@ export function CVBank() {
                   {/* Meta */}
                   <div className="mb-3 text-xs text-gray-500">
                     <p>Uploaded {format(new Date(doc.created_at), 'MMM d, yyyy')}</p>
-                    <p>{formatFileSize(doc.file_size)} • {doc.file_type?.split('/')[1]?.toUpperCase() || 'File'}</p>
+                    <p>{formatFileSize(doc.file_size)} • {doc.file_type?.split('/')[1]?.toUpperCase() || 'File'} • {DOC_LANGUAGE_LABELS[doc.language]}</p>
                   </div>
 
                   {/* Actions */}

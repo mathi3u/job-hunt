@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { CVDocument, DocType } from '@/types'
+import type { CVDocument, DocType, DocLanguage } from '@/types'
 
 const BUCKET_NAME = 'documents'
 
@@ -47,7 +47,8 @@ export function useDocuments(docType?: DocType) {
     file: File,
     name: string,
     description?: string,
-    docType: DocType = 'cv'
+    docType: DocType = 'cv',
+    language: DocLanguage = 'en'
   ): Promise<CVDocument | null> => {
     // Generate unique file path
     const fileExt = file.name.split('.').pop()
@@ -74,6 +75,7 @@ export function useDocuments(docType?: DocType) {
         file_type: file.type,
         file_size: file.size,
         doc_type: docType,
+        language,
         is_default: documents.filter(d => d.doc_type === docType).length === 0, // Default if first of type
       })
       .select()

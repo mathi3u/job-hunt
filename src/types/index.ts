@@ -11,7 +11,14 @@ export type OpportunityStatus =
   | 'offer'
   | 'closed_won'
   | 'closed_lost'
-  | 'on_hold'
+
+export type ClosedReason =
+  | 'rejected'
+  | 'withdrew'
+  | 'ghosted'
+  | 'offer_declined'
+  | 'role_cancelled'
+  | 'not_a_fit'
 
 export type OpportunitySource =
   | 'job_board'
@@ -66,6 +73,8 @@ export type CommType =
 
 export type DocType = 'cv' | 'cover_letter' | 'other'
 
+export type DocLanguage = 'en' | 'fr'
+
 // ============================================================================
 // ENTITIES
 // ============================================================================
@@ -105,6 +114,8 @@ export interface Opportunity {
   company_id: string | null
   title: string | null
   status: OpportunityStatus
+  closed_reason: ClosedReason | null
+  closed_at: string | null
   source: OpportunitySource | null
   source_detail: string | null
   priority: number
@@ -206,6 +217,7 @@ export interface CVDocument {
   file_type: string | null
   file_size: number | null
   doc_type: DocType
+  language: DocLanguage
   is_default: boolean
   created_at: string
   updated_at: string
@@ -283,7 +295,6 @@ export const STATUS_LABELS: Record<OpportunityStatus, string> = {
   offer: 'Offer',
   closed_won: 'Accepted',
   closed_lost: 'Closed',
-  on_hold: 'On Hold',
 }
 
 export const STATUS_COLORS: Record<OpportunityStatus, string> = {
@@ -295,7 +306,15 @@ export const STATUS_COLORS: Record<OpportunityStatus, string> = {
   offer: 'bg-green-100 text-green-800',
   closed_won: 'bg-emerald-100 text-emerald-800',
   closed_lost: 'bg-red-100 text-red-800',
-  on_hold: 'bg-orange-100 text-orange-800',
+}
+
+export const CLOSED_REASON_LABELS: Record<ClosedReason, string> = {
+  rejected: 'Rejected by company',
+  withdrew: 'I withdrew',
+  ghosted: 'No response (ghosted)',
+  offer_declined: 'I declined offer',
+  role_cancelled: 'Role was cancelled/filled',
+  not_a_fit: 'Not a good fit',
 }
 
 export const SOURCE_LABELS: Record<OpportunitySource, string> = {
@@ -337,5 +356,10 @@ export const DOC_TYPE_LABELS: Record<DocType, string> = {
   cv: 'CV / Resume',
   cover_letter: 'Cover Letter',
   other: 'Other',
+}
+
+export const DOC_LANGUAGE_LABELS: Record<DocLanguage, string> = {
+  en: 'English',
+  fr: 'French',
 }
 

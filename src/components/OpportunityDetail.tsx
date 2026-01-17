@@ -18,11 +18,12 @@ import {
 import { useOpportunityDetail } from '@/hooks/usePipeline'
 import { supabase } from '@/lib/supabase'
 import { CVSelector } from '@/components/CVSelector'
-import type { OpportunityStatus, InterviewType } from '@/types'
+import type { OpportunityStatus, InterviewType, ClosedReason } from '@/types'
 import {
   STATUS_LABELS,
   STATUS_COLORS,
   INTERVIEW_TYPE_LABELS,
+  CLOSED_REASON_LABELS,
 } from '@/types'
 
 const ALL_STATUSES: OpportunityStatus[] = [
@@ -34,7 +35,15 @@ const ALL_STATUSES: OpportunityStatus[] = [
   'offer',
   'closed_won',
   'closed_lost',
-  'on_hold',
+]
+
+const ALL_CLOSED_REASONS: ClosedReason[] = [
+  'rejected',
+  'withdrew',
+  'ghosted',
+  'offer_declined',
+  'role_cancelled',
+  'not_a_fit',
 ]
 
 const ALL_INTERVIEW_TYPES: InterviewType[] = [
@@ -81,11 +90,48 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
     prep_notes: '',
   })
 
+  // Closed reason picker
+  const [showClosedReasonPicker, setShowClosedReasonPicker] = useState(false)
+
   const handleStatusChange = async (newStatus: OpportunityStatus) => {
+    // If changing to closed_lost, show reason picker first
+    if (newStatus === 'closed_lost') {
+      setShowClosedReasonPicker(true)
+      return
+    }
+
     setUpdating(true)
+
+    // Set closed_at for closed_won, clear it for other statuses
+    const updates: Record<string, unknown> = {
+      status: newStatus,
+      closed_reason: null,
+      closed_at: newStatus === 'closed_won' ? new Date().toISOString() : null,
+    }
+
     const { error } = await supabase
       .from('opportunities')
-      .update({ status: newStatus })
+      .update(updates)
+      .eq('id', opportunityId)
+
+    if (!error) {
+      await refetch()
+      onUpdate()
+    }
+    setUpdating(false)
+  }
+
+  const handleClosedWithReason = async (reason: ClosedReason) => {
+    setUpdating(true)
+    setShowClosedReasonPicker(false)
+
+    const { error } = await supabase
+      .from('opportunities')
+      .update({
+        status: 'closed_lost',
+        closed_reason: reason,
+        closed_at: new Date().toISOString(),
+      })
       .eq('id', opportunityId)
 
     if (!error) {
@@ -249,6 +295,16 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     </option>
                   ))}
                 </select>
+                {data.status === 'closed_lost' && data.closed_reason && (
+                  <span className="text-xs text-red-600">
+                    ({CLOSED_REASON_LABELS[data.closed_reason]})
+                  </span>
+                )}
+                {(data.status === 'closed_won' || data.status === 'closed_lost') && data.closed_at && (
+                  <span className="text-xs text-gray-500">
+                    on {format(new Date(data.closed_at), 'MMM d, yyyy')}
+                  </span>
+                )}
               </div>
               {company && (
                 <div className="mt-1 flex items-center gap-2 text-gray-600">
@@ -687,6 +743,34 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
             )}
           </div>
         </div>
+
+        {/* Closed Reason Picker Modal */}
+        {showClosedReasonPicker && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black/50" onClick={() => setShowClosedReasonPicker(false)} />
+            <div className="relative rounded-lg bg-white p-6 shadow-xl max-w-sm w-full mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Why are you closing this?</h3>
+              <div className="space-y-2">
+                {ALL_CLOSED_REASONS.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => handleClosedWithReason(reason)}
+                    disabled={updating}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50"
+                  >
+                    {CLOSED_REASON_LABELS[reason]}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowClosedReasonPicker(false)}
+                className="mt-4 w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
