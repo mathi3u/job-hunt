@@ -93,8 +93,22 @@
     <!-- Success State -->
     <div id="success" class="state hidden">
       <div class="icon success">✓</div>
-      <p>Job saved successfully!</p>
-      <button id="open-app" class="btn btn-secondary">Open Job Tracker</button>
+      <p>Job saved! What's next?</p>
+      <div class="next-actions">
+        <a id="action-apply" class="action-btn action-primary" target="_blank">
+          <span class="action-icon">📤</span>
+          Apply Now
+        </a>
+        <a id="action-contacts" class="action-btn" target="_blank">
+          <span class="action-icon">👥</span>
+          Find Contacts
+        </a>
+        <a id="action-research" class="action-btn" target="_blank">
+          <span class="action-icon">🔍</span>
+          Research
+        </a>
+      </div>
+      <button id="open-app" class="btn btn-secondary btn-small">Open in Job Tracker</button>
     </div>
 
     <!-- Error State -->

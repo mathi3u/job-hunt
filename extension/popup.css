@@ -268,3 +268,53 @@ body {
 .btn-link:hover {
   background: #fef3c7;
 }
+
+/* Next Actions */
+.next-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  width: 100%;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  transition: all 0.15s;
+}
+
+.action-btn:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.action-btn.action-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.action-btn.action-primary:hover {
+  background: #1d4ed8;
+}
+
+.action-icon {
+  font-size: 16px;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 4px;
+}

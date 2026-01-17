@@ -36,6 +36,12 @@
     retry: document.getElementById('retry-btn')
   };
 
+  const actions = {
+    apply: document.getElementById('action-apply'),
+    contacts: document.getElementById('action-contacts'),
+    research: document.getElementById('action-research')
+  };
+
   let appUrl = 'http://localhost:5173';
 
   // Show a specific state, hide others
@@ -203,6 +209,21 @@
 
       const result = await response.json();
       window._savedOpportunityId = result.opportunity_id;
+
+      // Set up action buttons with URLs
+      const applyUrl = jobData.company_url || jobData.url;
+      if (applyUrl) {
+        actions.apply.href = applyUrl;
+        actions.apply.style.display = 'flex';
+      } else {
+        actions.apply.style.display = 'none';
+      }
+
+      if (jobData.company) {
+        actions.contacts.href = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(jobData.company)}&origin=GLOBAL_SEARCH_HEADER`;
+        actions.research.href = `https://www.google.com/search?q=${encodeURIComponent(jobData.company + ' company culture reviews')}`;
+      }
+
       showState('success');
 
       if (openAfter && result.opportunity_id) {

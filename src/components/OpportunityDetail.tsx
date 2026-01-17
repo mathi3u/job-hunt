@@ -14,6 +14,10 @@ import {
   Plus,
   Save,
   Edit2,
+  Send,
+  Users,
+  Search,
+  Linkedin,
 } from 'lucide-react'
 import { useOpportunityDetail } from '@/hooks/usePipeline'
 import { supabase } from '@/lib/supabase'
@@ -356,6 +360,80 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                 </a>
               )}
             </div>
+
+            {/* Next Actions - Show for early stages */}
+            {['identified', 'researching', 'preparing'].includes(data.status) && (
+              <div className="rounded-lg border-2 border-primary-200 bg-primary-50 p-4">
+                <h3 className="mb-3 font-semibold text-primary-900">Next Actions</h3>
+                <div className="flex flex-wrap gap-2">
+                  {/* Apply Button */}
+                  {(posting?.company_url || posting?.url) && (
+                    <a
+                      href={posting.company_url || posting.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
+                    >
+                      <Send className="h-4 w-4" />
+                      Apply {posting.company_url ? '(Company Site)' : '(Portal)'}
+                    </a>
+                  )}
+
+                  {/* Find Contacts Button */}
+                  {company && (
+                    <a
+                      href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      <Linkedin className="h-4 w-4" />
+                      Find Contacts
+                    </a>
+                  )}
+
+                  {/* Research Button */}
+                  {company && (
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      <Search className="h-4 w-4" />
+                      Research Company
+                    </a>
+                  )}
+                </div>
+
+                {/* Quick status update buttons */}
+                <div className="mt-3 flex items-center gap-2 border-t border-primary-200 pt-3">
+                  <span className="text-xs text-primary-700">Quick update:</span>
+                  {data.status !== 'researching' && (
+                    <button
+                      onClick={() => handleStatusChange('researching')}
+                      className="rounded bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-200"
+                    >
+                      Researching
+                    </button>
+                  )}
+                  {data.status !== 'preparing' && (
+                    <button
+                      onClick={() => handleStatusChange('preparing')}
+                      className="rounded bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-200"
+                    >
+                      Preparing
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleStatusChange('applied')}
+                    className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
+                  >
+                    Mark Applied
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* TL;DR */}
             {posting?.tldr && (
