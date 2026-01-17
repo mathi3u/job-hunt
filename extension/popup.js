@@ -200,9 +200,13 @@
         throw new Error(error);
       }
 
+      const result = await response.json();
+      window._savedOpportunityId = result.opportunity_id;
       showState('success');
 
-      if (openAfter) {
+      if (openAfter && result.opportunity_id) {
+        chrome.tabs.create({ url: `${appUrl}/pipeline?open=${result.opportunity_id}` });
+      } else if (openAfter) {
         chrome.tabs.create({ url: `${appUrl}/pipeline` });
       }
     } catch (err) {
@@ -277,7 +281,12 @@
   buttons.saveOpen.addEventListener('click', () => saveJob(true));
 
   buttons.openApp.addEventListener('click', () => {
-    chrome.tabs.create({ url: `${appUrl}/pipeline` });
+    const opportunityId = window._savedOpportunityId;
+    if (opportunityId) {
+      chrome.tabs.create({ url: `${appUrl}/pipeline?open=${opportunityId}` });
+    } else {
+      chrome.tabs.create({ url: `${appUrl}/pipeline` });
+    }
   });
 
   buttons.retry.addEventListener('click', () => {

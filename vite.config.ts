@@ -426,16 +426,34 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
               console.log('Created opportunity:', opportunityId)
 
               // 3. Create Job Posting
+              const postingData: Record<string, unknown> = {
+                opportunity_id: opportunityId,
+                company_id: companyId,
+                role: jobData.role || null,
+                url: jobData.url || null,
+                portal: jobData.portal || null,
+                posted_date: parseRelativeDate(jobData.date_posted),
+                location: jobData.location || null,
+                tldr: jobData.tldr || null,
+                responsibilities: jobData.responsibilities || null,
+                skills_requirements: jobData.skills_requirements || null,
+                recruitment_process: jobData.recruitment_process || null,
+                salary_range: jobData.salary_range || null,
+                experience_level: jobData.experience_level || null,
+                key_skills: jobData.key_skills || null,
+                red_flags: jobData.red_flags || null,
+                job_content: jobData.job_content || null
+              }
+
+              // Only include company_url if provided (avoids schema cache issues)
+              if (jobData.company_url) {
+                postingData.company_url = jobData.company_url
+              }
+
               const postingRes = await fetch(`${supabaseUrl}/rest/v1/job_postings`, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                  opportunity_id: opportunityId,
-                  company_id: companyId,
-                  role: jobData.role || null,
-                  url: jobData.url || null,
-                  company_url: jobData.company_url || null,
-                  portal: jobData.portal || null,
+                body: JSON.stringify(postingData)
                   posted_date: parseRelativeDate(jobData.date_posted),
                   location: jobData.location || null,
                   tldr: jobData.tldr || null,

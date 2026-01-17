@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Plus, RefreshCw } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { RefreshCw } from 'lucide-react'
 import { usePipeline } from '@/hooks/usePipeline'
 import { OpportunityList } from '@/components/OpportunityList'
 import { OpportunityDetail } from '@/components/OpportunityDetail'
@@ -7,7 +8,18 @@ import type { PipelineItem } from '@/types'
 
 export function Pipeline() {
   const { items, loading, error, refetch, deleteOpportunity } = usePipeline()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  // Auto-open opportunity from URL query param (e.g., /pipeline?open=abc123)
+  useEffect(() => {
+    const openId = searchParams.get('open')
+    if (openId) {
+      setSelectedId(openId)
+      // Clear the query param so it doesn't persist on refresh
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   const handleView = (item: PipelineItem) => {
     setSelectedId(item.opportunity_id)
