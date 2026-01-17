@@ -26,6 +26,7 @@
 
   const duplicateWarning = document.getElementById('duplicate-warning');
   const duplicateMessage = document.getElementById('duplicate-message');
+  const openExistingBtn = document.getElementById('open-existing-btn');
 
   const buttons = {
     openOptions: document.getElementById('open-options'),
@@ -259,6 +260,16 @@
       }
       duplicateMessage.textContent = message;
       duplicateWarning.classList.remove('hidden');
+
+      // Set up button to open existing job
+      if (job.opportunity_id) {
+        openExistingBtn.style.display = 'block';
+        openExistingBtn.onclick = () => {
+          chrome.tabs.create({ url: `${appUrl}/pipeline?open=${job.opportunity_id}` });
+        };
+      } else {
+        openExistingBtn.style.display = 'none';
+      }
     } else {
       duplicateWarning.classList.add('hidden');
     }

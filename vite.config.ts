@@ -213,7 +213,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
               // Check by URL first (exact match)
               if (url) {
                 const urlCheck = await fetch(
-                  `${supabaseUrl}/rest/v1/job_postings?url=eq.${encodeURIComponent(url)}&select=id,role,opportunity_id,opportunities(status)`,
+                  `${supabaseUrl}/rest/v1/job_postings?url=eq.${encodeURIComponent(url)}&select=id,opportunity_id,role,opportunities(status)`,
                   { headers }
                 )
                 const urlMatches = await urlCheck.json()
@@ -226,6 +226,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                     matchType: 'url',
                     existingJob: {
                       id: match.id,
+                      opportunity_id: match.opportunity_id,
                       role: match.role,
                       status: match.opportunities?.status || 'unknown'
                     }
@@ -258,6 +259,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                       matchType: 'company_role',
                       existingJob: {
                         id: match.id,
+                        opportunity_id: match.opportunity_id,
                         role: match.role,
                         company: companies[0].name,
                         status: match.opportunities?.status || 'unknown'
@@ -454,18 +456,6 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                 method: 'POST',
                 headers,
                 body: JSON.stringify(postingData)
-                  posted_date: parseRelativeDate(jobData.date_posted),
-                  location: jobData.location || null,
-                  tldr: jobData.tldr || null,
-                  responsibilities: jobData.responsibilities || null,
-                  skills_requirements: jobData.skills_requirements || null,
-                  recruitment_process: jobData.recruitment_process || null,
-                  salary_range: jobData.salary_range || null,
-                  experience_level: jobData.experience_level || null,
-                  key_skills: jobData.key_skills || null,
-                  red_flags: jobData.red_flags || null,
-                  job_content: jobData.job_content || null
-                })
               })
 
               if (!postingRes.ok) {
