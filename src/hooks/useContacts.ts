@@ -4,6 +4,7 @@ import type { Contact, ContactRelationship, ContactType, Company } from '@/types
 
 export interface ContactWithCompany extends Contact {
   company: Company | null
+  referred_by: { id: string; name: string } | null
 }
 
 export function useContacts(companyId?: string) {
@@ -19,7 +20,8 @@ export function useContacts(companyId?: string) {
       .from('contacts')
       .select(`
         *,
-        company:companies(*)
+        company:companies(*),
+        referred_by:contacts!referred_by_id(id, name)
       `)
       .order('name', { ascending: true })
 
@@ -57,6 +59,7 @@ export function useContacts(companyId?: string) {
     next_followup_date?: string
     next_contact_type?: ContactType
     source?: string
+    referred_by_id?: string
     skype?: string
     office_address?: string
     angelist_url?: string
@@ -78,6 +81,7 @@ export function useContacts(companyId?: string) {
         next_followup_date: contact.next_followup_date || null,
         next_contact_type: contact.next_contact_type || null,
         source: contact.source || null,
+        referred_by_id: contact.referred_by_id || null,
         skype: contact.skype || null,
         office_address: contact.office_address || null,
         angelist_url: contact.angelist_url || null,

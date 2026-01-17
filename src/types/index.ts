@@ -131,6 +131,7 @@ export interface Contact {
   next_followup_date: string | null
   next_contact_type: ContactType | null
   source: string | null
+  referred_by_id: string | null
   warmth: number | null
   skype: string | null
   office_address: string | null

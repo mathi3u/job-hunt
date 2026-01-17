@@ -4,6 +4,7 @@ import { Dashboard } from '@/pages/Dashboard'
 import { Pipeline } from '@/pages/Pipeline'
 import { CVBank } from '@/pages/CVBank'
 import { ContactBank } from '@/pages/ContactBank'
+import { Companies } from '@/pages/Companies'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="pipeline" element={<Pipeline />} />
           <Route path="cv-bank" element={<CVBank />} />
           <Route path="contact-bank" element={<ContactBank />} />
+          <Route path="companies" element={<Companies />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -94,6 +94,8 @@ export function ContactBank() {
   const [addNotes, setAddNotes] = useState('')
   const [addWarmth, setAddWarmth] = useState<number>(3)
   const [addFollowupDate, setAddFollowupDate] = useState('')
+  const [addSource, setAddSource] = useState('')
+  const [addReferredById, setAddReferredById] = useState('')
   const [adding, setAdding] = useState(false)
 
   // Edit state
@@ -108,6 +110,8 @@ export function ContactBank() {
   const [editNotes, setEditNotes] = useState('')
   const [editWarmth, setEditWarmth] = useState<number>(3)
   const [editFollowupDate, setEditFollowupDate] = useState('')
+  const [editSource, setEditSource] = useState('')
+  const [editReferredById, setEditReferredById] = useState('')
 
   // Delete confirmation
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -130,6 +134,8 @@ export function ContactBank() {
     setAddNotes('')
     setAddWarmth(3)
     setAddFollowupDate('')
+    setAddSource('')
+    setAddReferredById('')
     setShowAddForm(false)
   }
 
@@ -148,6 +154,8 @@ export function ContactBank() {
       notes: addNotes.trim() || undefined,
       warmth: addWarmth,
       next_followup_date: addFollowupDate || undefined,
+      source: addSource.trim() || undefined,
+      referred_by_id: addReferredById || undefined,
     })
     setAdding(false)
     resetAddForm()
@@ -165,6 +173,8 @@ export function ContactBank() {
     setEditNotes(contact.notes || '')
     setEditWarmth(contact.warmth || 3)
     setEditFollowupDate(contact.next_followup_date || '')
+    setEditSource(contact.source || '')
+    setEditReferredById(contact.referred_by_id || '')
   }
 
   const handleSaveEdit = async () => {
@@ -181,6 +191,8 @@ export function ContactBank() {
       notes: editNotes.trim() || null,
       warmth: editWarmth,
       next_followup_date: editFollowupDate || null,
+      source: editSource.trim() || null,
+      referred_by_id: editReferredById || null,
     })
     setEditingId(null)
   }
@@ -531,6 +543,31 @@ export function ContactBank() {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+              <input
+                type="text"
+                value={addSource}
+                onChange={(e) => setAddSource(e.target.value)}
+                placeholder="LinkedIn, Event, etc."
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Referred By</label>
+              <select
+                value={addReferredById}
+                onChange={(e) => setAddReferredById(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2"
+              >
+                <option value="">Select contact...</option>
+                {contacts.filter(c => c.name !== addName).map((contact) => (
+                  <option key={contact.id} value={contact.id}>
+                    {contact.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Warmth ({addWarmth}/5)
               </label>
@@ -713,6 +750,25 @@ export function ContactBank() {
                       onChange={(e) => setEditFollowupDate(e.target.value)}
                       className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
                     />
+                    <input
+                      type="text"
+                      value={editSource}
+                      onChange={(e) => setEditSource(e.target.value)}
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                      placeholder="Source (LinkedIn, Event, etc.)"
+                    />
+                    <select
+                      value={editReferredById}
+                      onChange={(e) => setEditReferredById(e.target.value)}
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    >
+                      <option value="">Referred by...</option>
+                      {contacts.filter(c => c.id !== editingId).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((level) => (
                         <button
@@ -791,10 +847,21 @@ export function ContactBank() {
                           {RELATIONSHIP_LABELS[contact.relationship]}
                         </span>
                       )}
-                      {contact.source && (
+                      {contact.source && !contact.referred_by && (
                         <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                           {contact.source}
                         </span>
+                      )}
+                      {contact.referred_by && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery(contact.referred_by!.name)
+                          }}
+                          className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 hover:bg-green-200"
+                        >
+                          <Users className="h-3 w-3" />
+                          via {contact.referred_by.name}
+                        </button>
                       )}
                     </div>
 

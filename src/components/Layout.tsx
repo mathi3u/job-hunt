@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { LayoutDashboard, GitBranch, FileText, Users } from 'lucide-react'
+import { LayoutDashboard, GitBranch, FileText, Users, Building2 } from 'lucide-react'
 
 export function Layout() {
   return (
@@ -60,6 +60,19 @@ export function Layout() {
             >
               <Users className="h-4 w-4" />
               Contacts
+            </NavLink>
+            <NavLink
+              to="/companies"
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors border-b-2 ${
+                  isActive
+                    ? 'border-primary-600 bg-primary-50 text-primary-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`
+              }
+            >
+              <Building2 className="h-4 w-4" />
+              Companies
             </NavLink>
           </nav>
         </div>
