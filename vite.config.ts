@@ -216,7 +216,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                   `${supabaseUrl}/rest/v1/job_postings?url=eq.${encodeURIComponent(url)}&select=id,opportunity_id,role,opportunities(status)`,
                   { headers }
                 )
-                const urlMatches = await urlCheck.json()
+                const urlMatches = await urlCheck.json() as Array<{id: string; opportunity_id: string; role: string; opportunities?: {status: string}}>
 
                 if (urlMatches.length > 0) {
                   const match = urlMatches[0]
@@ -241,7 +241,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                   `${supabaseUrl}/rest/v1/companies?name=ilike.${encodeURIComponent(company)}&select=id,name`,
                   { headers }
                 )
-                const companies = await companyCheck.json()
+                const companies = await companyCheck.json() as Array<{id: string; name: string}>
 
                 if (companies.length > 0) {
                   const companyId = companies[0].id
@@ -249,7 +249,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                     `${supabaseUrl}/rest/v1/job_postings?company_id=eq.${companyId}&role=ilike.${encodeURIComponent(role)}&select=id,role,opportunity_id,opportunities(status)`,
                     { headers }
                   )
-                  const roleMatches = await roleCheck.json()
+                  const roleMatches = await roleCheck.json() as Array<{id: string; role: string; opportunity_id: string; opportunities?: {status: string}}>
 
                   if (roleMatches.length > 0) {
                     const match = roleMatches[0]
@@ -378,7 +378,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                   `${supabaseUrl}/rest/v1/companies?name=eq.${encodeURIComponent(jobData.company)}&limit=1`,
                   { headers }
                 )
-                const existingCompanies = await companySearch.json()
+                const existingCompanies = await companySearch.json() as Array<{id: string}>
 
                 if (existingCompanies.length > 0) {
                   companyId = existingCompanies[0].id
@@ -395,7 +395,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                   })
 
                   if (companyRes.ok) {
-                    const newCompany = await companyRes.json()
+                    const newCompany = await companyRes.json() as Array<{id: string}>
                     companyId = newCompany[0]?.id
                     console.log('Created new company:', companyId)
                   }
@@ -423,7 +423,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                 return
               }
 
-              const opportunity = await opportunityRes.json()
+              const opportunity = await opportunityRes.json() as Array<{id: string}>
               const opportunityId = opportunity[0]?.id
               console.log('Created opportunity:', opportunityId)
 
@@ -466,7 +466,7 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
                 return
               }
 
-              const posting = await postingRes.json()
+              const posting = await postingRes.json() as Array<{id: string}>
               console.log('Created job posting:', posting[0]?.id)
 
               // Return the full result

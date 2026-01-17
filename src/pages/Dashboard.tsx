@@ -23,7 +23,6 @@ const STATUS_COLORS: Record<string, string> = {
   offer: '#22c55e',
   closed_won: '#059669',
   closed_lost: '#ef4444',
-  on_hold: '#f97316',
 }
 
 export function Dashboard() {
@@ -52,7 +51,6 @@ export function Dashboard() {
     { name: 'Interviewing', value: stats.interviewingCount, color: '#6366f1' },
     { name: 'Offer', value: stats.offerCount, color: '#22c55e' },
     { name: 'Closed', value: stats.closedCount, color: '#6b7280' },
-    { name: 'On Hold', value: stats.onHoldCount, color: '#f97316' },
   ].filter((d) => d.value > 0)
 
   const barData = Object.entries(stats.statusCounts)

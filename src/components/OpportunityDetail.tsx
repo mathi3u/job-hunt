@@ -15,7 +15,6 @@ import {
   Save,
   Edit2,
   Send,
-  Users,
   Search,
   Linkedin,
 } from 'lucide-react'
@@ -369,7 +368,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   {/* Apply Button */}
                   {(posting?.company_url || posting?.url) && (
                     <a
-                      href={posting.company_url || posting.url}
+                      href={(posting.company_url || posting.url) ?? ''}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"

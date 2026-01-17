@@ -23,7 +23,6 @@ const statusFilters: { value: StatusFilter; label: string }[] = [
   { value: 'offer', label: STATUS_LABELS.offer },
   { value: 'closed_won', label: STATUS_LABELS.closed_won },
   { value: 'closed_lost', label: STATUS_LABELS.closed_lost },
-  { value: 'on_hold', label: STATUS_LABELS.on_hold },
 ]
 
 const activeStatuses: OpportunityStatus[] = [

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { FileText, ChevronDown, Star, Upload, ExternalLink } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
+import type { CVDocument } from '@/types'
 
 interface CVSelectorProps {
   value: string
@@ -9,9 +10,10 @@ interface CVSelectorProps {
 }
 
 export function CVSelector({ value, onChange, className = '' }: CVSelectorProps) {
-  const { documents, loading, getPublicUrl, uploadDocument, getDefaultDocument } = useDocuments('cv')
+  const { documents, loading, getSignedUrl, uploadDocument, getDefaultDocument } = useDocuments('cv')
   const [isOpen, setIsOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [selectedDoc, setSelectedDoc] = useState<CVDocument | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -31,10 +33,13 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
     if (!value && documents.length > 0) {
       const defaultDoc = getDefaultDocument('cv')
       if (defaultDoc) {
-        onChange(getPublicUrl(defaultDoc.file_path))
+        setSelectedDoc(defaultDoc)
+        getSignedUrl(defaultDoc.file_path).then(url => {
+          if (url) onChange(url)
+        })
       }
     }
-  }, [documents, value, getDefaultDocument, getPublicUrl, onChange])
+  }, [documents, value, getDefaultDocument, getSignedUrl, onChange])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -45,7 +50,9 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
     const doc = await uploadDocument(file, name, undefined, 'cv')
 
     if (doc) {
-      onChange(getPublicUrl(doc.file_path))
+      setSelectedDoc(doc)
+      const url = await getSignedUrl(doc.file_path)
+      if (url) onChange(url)
     }
 
     setUploading(false)
@@ -55,10 +62,12 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
     }
   }
 
-  const selectedDoc = documents.find(doc => {
-    const docUrl = getPublicUrl(doc.file_path)
-    return docUrl === value
-  })
+  const handleSelectDoc = async (doc: CVDocument) => {
+    setSelectedDoc(doc)
+    const url = await getSignedUrl(doc.file_path)
+    if (url) onChange(url)
+    setIsOpen(false)
+  }
 
   if (loading) {
     return (
@@ -96,7 +105,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
               )}
             </span>
           ) : value ? (
-            <span className="text-gray-600 truncate">{value}</span>
+            <span className="text-gray-600 truncate">CV Selected</span>
           ) : (
             <span className="text-gray-400">Select a CV...</span>
           )}
@@ -114,16 +123,12 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
               </div>
             ) : (
               documents.map((doc) => {
-                const docUrl = getPublicUrl(doc.file_path)
-                const isSelected = docUrl === value
+                const isSelected = selectedDoc?.id === doc.id
                 return (
                   <button
                     key={doc.id}
                     type="button"
-                    onClick={() => {
-                      onChange(docUrl)
-                      setIsOpen(false)
-                    }}
+                    onClick={() => handleSelectDoc(doc)}
                     className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-purple-50 ${
                       isSelected ? 'bg-purple-100' : ''
                     }`}
@@ -160,6 +165,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
               onClick={() => {
                 const url = prompt('Enter CV URL:', value || '')
                 if (url !== null) {
+                  setSelectedDoc(null)
                   onChange(url)
                   setIsOpen(false)
                 }

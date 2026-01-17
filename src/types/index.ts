@@ -75,6 +75,16 @@ export type DocType = 'cv' | 'cover_letter' | 'other'
 
 export type DocLanguage = 'en' | 'fr'
 
+export type ContactRelationship =
+  | 'recruiter'
+  | 'hiring_manager'
+  | 'employee'
+  | 'referral'
+  | 'former_colleague'
+  | 'friend'
+  | 'alumni'
+  | 'other'
+
 // ============================================================================
 // ENTITIES
 // ============================================================================
@@ -103,8 +113,11 @@ export interface Contact {
   email: string | null
   phone: string | null
   linkedin_url: string | null
-  relationship: string | null
+  relationship: ContactRelationship | null
   notes: string | null
+  last_contacted_at: string | null
+  next_followup_date: string | null
+  warmth: number | null
   created_at: string
   updated_at: string
 }
@@ -362,5 +375,27 @@ export const DOC_TYPE_LABELS: Record<DocType, string> = {
 export const DOC_LANGUAGE_LABELS: Record<DocLanguage, string> = {
   en: 'English',
   fr: 'French',
+}
+
+export const RELATIONSHIP_LABELS: Record<ContactRelationship, string> = {
+  recruiter: 'Recruiter',
+  hiring_manager: 'Hiring Manager',
+  employee: 'Employee',
+  referral: 'Referral',
+  former_colleague: 'Former Colleague',
+  friend: 'Friend',
+  alumni: 'Alumni',
+  other: 'Other',
+}
+
+export const RELATIONSHIP_COLORS: Record<ContactRelationship, string> = {
+  recruiter: 'bg-purple-100 text-purple-800',
+  hiring_manager: 'bg-blue-100 text-blue-800',
+  employee: 'bg-gray-100 text-gray-800',
+  referral: 'bg-green-100 text-green-800',
+  former_colleague: 'bg-yellow-100 text-yellow-800',
+  friend: 'bg-pink-100 text-pink-800',
+  alumni: 'bg-indigo-100 text-indigo-800',
+  other: 'bg-gray-100 text-gray-600',
 }
 

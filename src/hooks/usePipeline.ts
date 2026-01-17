@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabase'
 import type {
   PipelineItem,
   OpportunityWithDetails,
-  Opportunity,
   OpportunityStatus,
 } from '@/types'
 
@@ -176,7 +175,6 @@ export function usePipelineStats(items: PipelineItem[]) {
     offer: items.filter((i) => i.status === 'offer').length,
     closed_won: items.filter((i) => i.status === 'closed_won').length,
     closed_lost: items.filter((i) => i.status === 'closed_lost').length,
-    on_hold: items.filter((i) => i.status === 'on_hold').length,
   }
 
   // Aggregate counts
@@ -185,7 +183,6 @@ export function usePipelineStats(items: PipelineItem[]) {
   const interviewingCount = statusCounts.interviewing
   const offerCount = statusCounts.offer
   const closedCount = statusCounts.closed_won + statusCounts.closed_lost
-  const onHoldCount = statusCounts.on_hold
 
   const activeCount = preApplyCount + appliedCount + interviewingCount + offerCount
   const totalCount = items.length
@@ -216,7 +213,6 @@ export function usePipelineStats(items: PipelineItem[]) {
     interviewingCount,
     offerCount,
     closedCount,
-    onHoldCount,
     activeCount,
     totalCount,
     highPriorityCount,
