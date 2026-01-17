@@ -179,7 +179,7 @@
       showState('success');
 
       if (openAfter) {
-        chrome.tabs.create({ url: `${appUrl}/jobs` });
+        chrome.tabs.create({ url: `${appUrl}/pipeline` });
       }
     } catch (err) {
       console.error('Save failed:', err);
@@ -238,7 +238,7 @@
   buttons.saveOpen.addEventListener('click', () => saveJob(true));
 
   buttons.openApp.addEventListener('click', () => {
-    chrome.tabs.create({ url: `${appUrl}/jobs` });
+    chrome.tabs.create({ url: `${appUrl}/pipeline` });
   });
 
   buttons.retry.addEventListener('click', () => {
