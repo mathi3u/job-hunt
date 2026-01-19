@@ -10,7 +10,9 @@
     notJobPage: document.getElementById('not-job-page'),
     preview: document.getElementById('preview'),
     success: document.getElementById('success'),
-    error: document.getElementById('error')
+    error: document.getElementById('error'),
+    contactPreview: document.getElementById('contact-preview'),
+    contactSuccess: document.getElementById('contact-success')
   };
 
   const fields = {
@@ -24,6 +26,20 @@
     contentLength: document.getElementById('content-length')
   };
 
+  // Contact fields
+  const contactFields = {
+    name: document.getElementById('contact-name'),
+    role: document.getElementById('contact-role'),
+    company: document.getElementById('contact-company'),
+    summary: document.getElementById('contact-summary'),
+    commonalities: document.getElementById('contact-commonalities'),
+    outreachMessage: document.getElementById('outreach-message'),
+    talkingPoints: document.getElementById('talking-points'),
+    relationship: document.getElementById('contact-relationship'),
+    url: document.getElementById('contact-url'),
+    notes: document.getElementById('contact-notes')
+  };
+
   const duplicateWarning = document.getElementById('duplicate-warning');
   const duplicateMessage = document.getElementById('duplicate-message');
   const openExistingBtn = document.getElementById('open-existing-btn');
@@ -33,16 +49,22 @@
     save: document.getElementById('save-btn'),
     saveOpen: document.getElementById('save-open-btn'),
     openApp: document.getElementById('open-app'),
-    retry: document.getElementById('retry-btn')
+    retry: document.getElementById('retry-btn'),
+    saveContact: document.getElementById('save-contact-btn'),
+    saveContactOpen: document.getElementById('save-contact-open-btn'),
+    copyMessage: document.getElementById('copy-message-btn')
   };
 
   const actions = {
     apply: document.getElementById('action-apply'),
     contacts: document.getElementById('action-contacts'),
-    research: document.getElementById('action-research')
+    research: document.getElementById('action-research'),
+    sendMessage: document.getElementById('action-send-message'),
+    viewContacts: document.getElementById('action-view-contacts')
   };
 
   let appUrl = 'http://localhost:5173';
+  let userProfile = null;
 
   // Show a specific state, hide others
   function showState(stateName) {
@@ -58,11 +80,194 @@
   // Load config from storage
   async function loadConfig() {
     return new Promise((resolve) => {
-      chrome.storage.sync.get(['appUrl'], (result) => {
+      chrome.storage.sync.get(['appUrl', 'userProfile'], (result) => {
         appUrl = result.appUrl || 'http://localhost:5173';
+        userProfile = result.userProfile || null;
         resolve(true); // Always configured - just uses default localhost
       });
     });
+  }
+
+  // Detect page type (job vs profile)
+  async function detectPageType() {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        const tab = tabs[0];
+        if (!tab) {
+          reject(new Error('No active tab'));
+          return;
+        }
+
+        try {
+          // Inject content script
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+          });
+
+          await new Promise(r => setTimeout(r, 300));
+
+          // Ask content script to detect page type
+          chrome.tabs.sendMessage(tab.id, { action: 'detectPageType' }, (resp) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else if (resp && resp.success) {
+              resolve({ site: resp.site, pageType: resp.pageType, url: tab.url });
+            } else {
+              reject(new Error('Failed to detect page type'));
+            }
+          });
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
+  }
+
+  // Extract contact data from LinkedIn profile
+  async function extractContactData() {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+        const tab = tabs[0];
+        if (!tab) {
+          reject(new Error('No active tab'));
+          return;
+        }
+
+        try {
+          // Get profile content
+          const response = await new Promise((res, rej) => {
+            chrome.tabs.sendMessage(tab.id, { action: 'extractProfile' }, (resp) => {
+              if (chrome.runtime.lastError) {
+                rej(new Error(chrome.runtime.lastError.message));
+              } else if (resp && resp.success) {
+                res(resp.data);
+              } else {
+                rej(new Error(resp?.error || 'Failed to extract profile'));
+              }
+            });
+          });
+
+          console.log('Got profile content, sending to AI server...');
+
+          // Send to backend for AI processing
+          const aiResponse = await fetch(`${appUrl}/api/extract-contact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pageTitle: response.pageTitle,
+              pageText: response.pageText,
+              url: response.url,
+              userProfile: userProfile
+            })
+          });
+
+          if (!aiResponse.ok) {
+            const error = await aiResponse.text();
+            throw new Error('AI extraction failed: ' + error);
+          }
+
+          const extractedData = await aiResponse.json();
+          console.log('AI extracted contact:', extractedData);
+          resolve(extractedData);
+
+        } catch (err) {
+          console.error('Contact extraction error:', err);
+          reject(err);
+        }
+      });
+    });
+  }
+
+  // Populate contact form
+  function populateContactForm(data) {
+    contactFields.name.value = data.name || '';
+    contactFields.role.value = data.role || '';
+    contactFields.company.value = data.company || '';
+    contactFields.url.value = data.url || '';
+
+    // Summary
+    if (data.summary) {
+      contactFields.summary.textContent = data.summary;
+    }
+
+    // Commonalities
+    if (data.commonalities && data.commonalities.length > 0) {
+      contactFields.commonalities.innerHTML = data.commonalities
+        .map(c => `<li>${c}</li>`)
+        .join('');
+    } else {
+      document.getElementById('commonalities-section').style.display = 'none';
+    }
+
+    // Outreach message
+    if (data.outreach_message && data.outreach_message.body) {
+      contactFields.outreachMessage.value = data.outreach_message.body;
+    }
+
+    // Talking points
+    if (data.talking_points && data.talking_points.length > 0) {
+      contactFields.talkingPoints.innerHTML = data.talking_points
+        .map(t => `<li>${t}</li>`)
+        .join('');
+    }
+
+    // Relationship type
+    if (data.relationship_type) {
+      contactFields.relationship.value = data.relationship_type;
+    }
+
+    // Store full data
+    window._extractedContactData = data;
+
+    showState('contactPreview');
+  }
+
+  // Save contact
+  async function saveContact(openAfter = false) {
+    buttons.saveContact.disabled = true;
+    buttons.saveContactOpen.disabled = true;
+    buttons.saveContact.textContent = 'Saving...';
+
+    const contactData = {
+      name: contactFields.name.value,
+      role: contactFields.role.value,
+      company: contactFields.company.value,
+      linkedin_url: contactFields.url.value,
+      relationship: contactFields.relationship.value || null,
+      notes: contactFields.notes.value || null
+    };
+
+    try {
+      const response = await fetch(`${appUrl}/api/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactData)
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error);
+      }
+
+      const result = await response.json();
+
+      // Set up action buttons
+      if (contactFields.url.value) {
+        actions.sendMessage.href = contactFields.url.value;
+      }
+      actions.viewContacts.href = `${appUrl}/contacts`;
+
+      showState('contactSuccess');
+
+      if (openAfter) {
+        chrome.tabs.create({ url: `${appUrl}/contacts` });
+      }
+    } catch (err) {
+      console.error('Save contact failed:', err);
+      document.getElementById('error-message').textContent = 'Failed to save: ' + err.message;
+      showState('error');
+    }
   }
 
   // Extract page content and send to AI server for processing
@@ -325,6 +530,25 @@
     init();
   });
 
+  // Contact button handlers
+  if (buttons.saveContact) {
+    buttons.saveContact.addEventListener('click', () => saveContact(false));
+  }
+  if (buttons.saveContactOpen) {
+    buttons.saveContactOpen.addEventListener('click', () => saveContact(true));
+  }
+  if (buttons.copyMessage) {
+    buttons.copyMessage.addEventListener('click', () => {
+      const message = contactFields.outreachMessage.value;
+      navigator.clipboard.writeText(message).then(() => {
+        buttons.copyMessage.textContent = 'Copied!';
+        setTimeout(() => {
+          buttons.copyMessage.textContent = 'Copy';
+        }, 2000);
+      });
+    });
+  }
+
   // Initialize
   async function init() {
     showState('loading');
@@ -336,15 +560,29 @@
       return;
     }
 
-    // Try to extract job data
     try {
-      const data = await extractJobData();
-      await populateForm(data);
+      // First detect page type
+      const { site, pageType, url } = await detectPageType();
+      console.log('Detected:', site, pageType);
+
+      if (pageType === 'profile') {
+        // LinkedIn profile - extract contact
+        document.querySelector('.header h1').textContent = 'Save Contact';
+        const data = await extractContactData();
+        populateContactForm(data);
+      } else if (pageType === 'job') {
+        // Job posting - extract job
+        const data = await extractJobData();
+        await populateForm(data);
+      } else {
+        // Not a supported page
+        showState('notJobPage');
+      }
     } catch (err) {
+      console.error('Extraction error:', err);
       if (err.message === 'not_job_page') {
         showState('notJobPage');
       } else {
-        console.error('Extraction error:', err);
         document.getElementById('error-message').textContent = err.message;
         showState('error');
       }

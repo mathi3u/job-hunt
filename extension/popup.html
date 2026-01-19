@@ -28,8 +28,104 @@
     <!-- Not a Job Page State -->
     <div id="not-job-page" class="state hidden">
       <div class="icon info">?</div>
-      <p>Navigate to a job posting page to save it.</p>
-      <p class="hint">Supported: LinkedIn, Greenhouse, Lever, Ashby, Workday, and more</p>
+      <p>Navigate to a job posting or LinkedIn profile to save it.</p>
+      <p class="hint">Supported: LinkedIn jobs/profiles, Greenhouse, Lever, Ashby, Workday</p>
+    </div>
+
+    <!-- Contact Preview (LinkedIn Profile) -->
+    <div id="contact-preview" class="state hidden">
+      <!-- Contact Info -->
+      <div class="contact-header">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="contact-name" placeholder="Contact name" class="input-large">
+        </div>
+        <div class="field-row">
+          <div class="field flex-1">
+            <label>Role</label>
+            <input type="text" id="contact-role" placeholder="Job title">
+          </div>
+          <div class="field flex-1">
+            <label>Company</label>
+            <input type="text" id="contact-company" placeholder="Company">
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Summary -->
+      <div class="field ai-summary" id="contact-summary-section">
+        <label>About</label>
+        <p id="contact-summary" class="tldr-text"></p>
+      </div>
+
+      <!-- Commonalities -->
+      <div class="field ai-summary" id="commonalities-section" style="background: #f0fdf4; border-color: #86efac;">
+        <label style="color: #166534;">What You Have in Common</label>
+        <ul id="contact-commonalities" style="font-size: 12px; margin: 4px 0 0 16px; color: #166534;"></ul>
+      </div>
+
+      <!-- Outreach Message -->
+      <div class="outreach-section">
+        <div class="field">
+          <label>
+            Suggested Outreach Message
+            <button type="button" id="copy-message-btn" class="btn-link" style="font-size: 10px; padding: 2px 8px;">Copy</button>
+          </label>
+          <textarea id="outreach-message" rows="6" style="font-size: 12px; line-height: 1.5; font-family: inherit;"></textarea>
+        </div>
+      </div>
+
+      <!-- Talking Points -->
+      <details class="url-details" id="talking-points-details">
+        <summary>Talking Points & Details</summary>
+        <div class="details-content">
+          <div class="field">
+            <label>Questions to Ask</label>
+            <ul id="talking-points" style="font-size: 12px; margin: 4px 0 0 16px; color: #374151;"></ul>
+          </div>
+          <div class="field">
+            <label>Relationship Type</label>
+            <select id="contact-relationship" style="padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;">
+              <option value="">Select...</option>
+              <option value="potential_referral">Potential Referral</option>
+              <option value="hiring_manager">Hiring Manager</option>
+              <option value="recruiter">Recruiter</option>
+              <option value="industry_peer">Industry Peer</option>
+              <option value="mentor">Mentor</option>
+              <option value="alumni">Alumni</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>LinkedIn URL</label>
+            <input type="text" id="contact-url" readonly>
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <textarea id="contact-notes" rows="2" placeholder="Add any notes..."></textarea>
+          </div>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button id="save-contact-btn" class="btn btn-primary">Save Contact</button>
+        <button id="save-contact-open-btn" class="btn btn-secondary">Save & Open</button>
+      </div>
+    </div>
+
+    <!-- Contact Success State -->
+    <div id="contact-success" class="state hidden">
+      <div class="icon success">✓</div>
+      <p>Contact saved!</p>
+      <div class="next-actions">
+        <a id="action-send-message" class="action-btn action-primary" target="_blank">
+          <span class="action-icon">💬</span>
+          Send Message on LinkedIn
+        </a>
+        <a id="action-view-contacts" class="action-btn" href="http://localhost:5173/contacts" target="_blank">
+          <span class="action-icon">👥</span>
+          View Contact Bank
+        </a>
+      </div>
     </div>
 
     <!-- Extracted Data Preview -->

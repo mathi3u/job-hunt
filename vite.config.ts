@@ -176,6 +176,271 @@ IMPORTANT: Keep responses concise. For text fields, summarize rather than copy v
         next()
       })
 
+      // Contact extraction endpoint (AI-powered)
+      server.middlewares.use('/api/extract-contact', async (req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        if (req.method === 'POST') {
+          let body = ''
+          req.on('data', (chunk) => { body += chunk })
+          req.on('end', async () => {
+            try {
+              const { pageTitle, pageText, url, userProfile } = JSON.parse(body)
+
+              if (!anthropic) {
+                res.statusCode = 500
+                res.end(JSON.stringify({ error: 'Anthropic API not configured' }))
+                return
+              }
+
+              // Truncate page text
+              const truncatedText = pageText.length > 15000
+                ? pageText.substring(0, 15000) + '\n[Content truncated...]'
+                : pageText
+
+              console.log('Extracting contact info with AI...')
+
+              // Build user context for personalization
+              let userContext = ''
+              if (userProfile && (userProfile.name || userProfile.background)) {
+                userContext = `
+YOUR BACKGROUND (the person reaching out):
+- Name: ${userProfile.name || 'Not provided'}
+- Current Role: ${userProfile.role || 'Not provided'}
+- Company: ${userProfile.company || 'Not provided'}
+- Background: ${userProfile.background || 'Not provided'}
+`
+              }
+
+              const message = await anthropic.messages.create({
+                model: 'claude-haiku-4-5-20251001',
+                max_tokens: 4096,
+                messages: [{
+                  role: 'user',
+                  content: `Extract professional profile information from this LinkedIn page and generate a personalized outreach message.
+
+Page Title: ${pageTitle}
+URL: ${url}
+
+${userContext}
+
+Page Content:
+${truncatedText}
+
+IMPORTANT EXTRACTION TIPS:
+- The page title often follows format: "Name - Role - Company | LinkedIn"
+- Look for the person's headline near the top (usually describes their current role)
+- Current company is often mentioned in their headline or under "Experience"
+- If you see "at [Company]" in their headline, that's their current company
+- Look for job titles like CEO, Founder, Engineer, Manager, etc.
+
+Extract and return this JSON structure:
+{
+  "name": "full name of the person (REQUIRED - extract from page title or h1)",
+  "role": "current job title/headline (look in page title, headline, or first experience entry)",
+  "company": "current company name (look in page title, headline 'at Company', or first experience entry)",
+  "location": "location if visible",
+  "email": "email if visible (rare)",
+  "summary": "2-3 sentence summary of their background, experience, and expertise",
+
+  "commonalities": [
+    "List 3-5 potential commonalities or connection points based on their profile and the user's background (shared industries, skills, interests, education, career paths, etc.)"
+  ],
+
+  "outreach_message": {
+    "subject": "Short, personalized subject line for LinkedIn message or email",
+    "body": "Write a warm, professional outreach message (150-200 words) that:
+      1. Opens with a specific observation about their work/background
+      2. Mentions 1-2 genuine commonalities or reasons for reaching out
+      3. Shows you've done your research (reference something specific)
+      4. Asks for a brief chat or advice (not a job ask directly)
+      5. Ends with a clear but low-pressure CTA
+
+      Keep it conversational and authentic - avoid generic networking language."
+  },
+
+  "talking_points": [
+    "3-5 specific questions or topics you could discuss based on their expertise and your interests"
+  ],
+
+  "relationship_type": "suggested relationship type: 'potential_referral', 'industry_peer', 'hiring_manager', 'recruiter', 'mentor', 'alumni'"
+}
+
+Return ONLY valid JSON, no markdown. Do NOT return empty strings for name/role/company - extract from the available content.`
+                }]
+              })
+
+              const responseText = message.content[0].type === 'text'
+                ? message.content[0].text
+                : ''
+
+              let extractedData
+              try {
+                let jsonStr = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+                extractedData = JSON.parse(jsonStr)
+              } catch (parseErr) {
+                console.error('Failed to parse AI response:', parseErr)
+                // Fallback
+                const nameParts = pageTitle.split(' | ')
+                extractedData = {
+                  name: nameParts[0] || '',
+                  role: '',
+                  company: '',
+                  summary: 'AI extraction failed - please fill manually',
+                  outreach_message: { subject: '', body: '' }
+                }
+              }
+
+              extractedData.url = url
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify(extractedData))
+
+            } catch (err) {
+              console.error('Contact extraction error:', err)
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: (err as Error).message }))
+            }
+          })
+          return
+        }
+
+        next()
+      })
+
+      // Save contact endpoint
+      server.middlewares.use('/api/contacts', async (req, res, next) => {
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        if (req.method === 'POST') {
+          let body = ''
+          req.on('data', (chunk) => { body += chunk })
+          req.on('end', async () => {
+            try {
+              const contactData = JSON.parse(body)
+
+              const supabaseUrl = env.VITE_SUPABASE_URL
+              const supabaseKey = env.VITE_SUPABASE_ANON_KEY
+
+              if (!supabaseUrl || !supabaseKey) {
+                res.statusCode = 500
+                res.end(JSON.stringify({ error: 'Supabase not configured' }))
+                return
+              }
+
+              const headers = {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Prefer': 'return=representation'
+              }
+
+              console.log('Saving contact:', contactData.name)
+
+              // 1. Find or create company if provided
+              let companyId: string | null = null
+              if (contactData.company) {
+                const companySearch = await fetch(
+                  `${supabaseUrl}/rest/v1/companies?name=ilike.${encodeURIComponent(contactData.company)}&limit=1`,
+                  { headers }
+                )
+                const existingCompanies = await companySearch.json() as Array<{id: string}>
+
+                if (existingCompanies.length > 0) {
+                  companyId = existingCompanies[0].id
+                } else {
+                  const companyRes = await fetch(`${supabaseUrl}/rest/v1/companies`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ name: contactData.company })
+                  })
+                  if (companyRes.ok) {
+                    const newCompany = await companyRes.json() as Array<{id: string}>
+                    companyId = newCompany[0]?.id
+                  }
+                }
+              }
+
+              // 2. Check for existing contact by LinkedIn URL
+              if (contactData.linkedin_url) {
+                const existingContact = await fetch(
+                  `${supabaseUrl}/rest/v1/contacts?linkedin_url=eq.${encodeURIComponent(contactData.linkedin_url)}&limit=1`,
+                  { headers }
+                )
+                const existing = await existingContact.json() as Array<{id: string; name: string}>
+                if (existing.length > 0) {
+                  res.setHeader('Content-Type', 'application/json')
+                  res.end(JSON.stringify({
+                    success: true,
+                    contact_id: existing[0].id,
+                    is_existing: true,
+                    message: `Contact "${existing[0].name}" already exists`
+                  }))
+                  return
+                }
+              }
+
+              // 3. Create contact
+              const contactPayload = {
+                name: contactData.name,
+                role: contactData.role || null,
+                email: contactData.email || null,
+                linkedin_url: contactData.linkedin_url || null,
+                company_id: companyId,
+                relationship: contactData.relationship || null,
+                notes: contactData.notes || null
+              }
+
+              const contactRes = await fetch(`${supabaseUrl}/rest/v1/contacts`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(contactPayload)
+              })
+
+              if (!contactRes.ok) {
+                const error = await contactRes.text()
+                res.statusCode = 500
+                res.end(JSON.stringify({ error: 'Failed to save contact: ' + error }))
+                return
+              }
+
+              const contact = await contactRes.json() as Array<{id: string}>
+              console.log('Contact saved:', contact[0]?.id)
+
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({
+                success: true,
+                contact_id: contact[0]?.id,
+                company_id: companyId
+              }))
+
+            } catch (err) {
+              console.error('Save contact error:', err)
+              res.statusCode = 500
+              res.end(JSON.stringify({ error: (err as Error).message }))
+            }
+          })
+          return
+        }
+
+        next()
+      })
+
       // Duplicate check endpoint
       server.middlewares.use('/api/check-duplicate', async (req, res, next) => {
         res.setHeader('Access-Control-Allow-Origin', '*')

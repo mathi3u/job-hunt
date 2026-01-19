@@ -150,6 +150,43 @@
       <button type="submit" class="btn">Save Settings</button>
     </form>
 
+    <hr style="margin: 32px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Your Profile</h2>
+    <p class="subtitle">Used to generate personalized outreach messages when capturing contacts</p>
+
+    <form id="profile-form">
+      <div class="field">
+        <label for="user-name">Your Name</label>
+        <input type="text" id="user-name" placeholder="John Doe">
+      </div>
+
+      <div class="field">
+        <label for="user-role">Current Role / Title</label>
+        <input type="text" id="user-role" placeholder="Senior Software Engineer">
+      </div>
+
+      <div class="field">
+        <label for="user-company">Current Company</label>
+        <input type="text" id="user-company" placeholder="Acme Corp">
+      </div>
+
+      <div class="field">
+        <label for="user-background">Background & Interests</label>
+        <textarea id="user-background" rows="4" placeholder="Brief background: past roles, industries, key skills, interests, what you're looking for..." style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+        <p class="hint">This helps AI find real commonalities with contacts</p>
+      </div>
+
+      <div class="field">
+        <label for="user-linkedin">Your LinkedIn URL</label>
+        <input type="url" id="user-linkedin" placeholder="https://linkedin.com/in/yourprofile">
+      </div>
+
+      <button type="submit" class="btn">Save Profile</button>
+    </form>
+
+    <div id="profile-message" class="message hidden"></div>
+
     <div id="message" class="message hidden"></div>
   </div>
 

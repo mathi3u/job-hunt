@@ -18,6 +18,126 @@
     return 'generic';
   }
 
+  // Detect page type on LinkedIn (job posting vs profile)
+  function detectLinkedInPageType() {
+    const url = window.location.href;
+    const pathname = window.location.pathname;
+
+    if (pathname.startsWith('/in/')) return 'profile';
+    if (pathname.startsWith('/jobs/') || pathname.includes('/job/')) return 'job';
+    if (pathname.startsWith('/company/')) return 'company';
+
+    return 'other';
+  }
+
+  // Extract LinkedIn profile data
+  function extractLinkedInProfile() {
+    console.log('Extracting LinkedIn profile...');
+
+    const url = window.location.href;
+    const pageText = document.body.innerText || '';
+    const pageTitle = document.title || '';
+
+    // Parse page title: "Name - Role - Company | LinkedIn" or "Name | LinkedIn"
+    let name = '';
+    let role = '';
+    let company = '';
+
+    const titleParts = pageTitle.replace(' | LinkedIn', '').split(' - ');
+    if (titleParts.length >= 1) {
+      name = titleParts[0].trim();
+    }
+    if (titleParts.length >= 2) {
+      role = titleParts[1].trim();
+    }
+    if (titleParts.length >= 3) {
+      company = titleParts[2].trim();
+    }
+
+    // Try DOM selectors as fallback/override
+    const h1 = document.querySelector('h1');
+    if (h1 && h1.textContent?.trim()) {
+      name = h1.textContent.trim();
+    }
+
+    // LinkedIn headline selectors (try multiple)
+    const headlineSelectors = [
+      '.text-body-medium.break-words',
+      '.text-body-medium',
+      '[data-generated-suggestion-target]',
+      '.pv-text-details__left-panel .text-body-medium',
+      'div.mt2 .text-body-medium'
+    ];
+
+    for (const selector of headlineSelectors) {
+      const el = document.querySelector(selector);
+      if (el && el.textContent?.trim() && el.textContent.trim().length > 2) {
+        const headline = el.textContent.trim();
+        // Headline often contains "Role at Company" format
+        if (headline.includes(' at ')) {
+          const parts = headline.split(' at ');
+          if (!role) role = parts[0].trim();
+          if (!company) company = parts[1].trim();
+        } else if (!role) {
+          role = headline;
+        }
+        break;
+      }
+    }
+
+    // Location selectors
+    let location = '';
+    const locationSelectors = [
+      '.text-body-small.inline.t-black--light.break-words',
+      '.pv-text-details__left-panel .text-body-small',
+      'span.text-body-small'
+    ];
+
+    for (const selector of locationSelectors) {
+      const el = document.querySelector(selector);
+      if (el && el.textContent?.trim()) {
+        const text = el.textContent.trim();
+        // Skip if it looks like a link count or connection count
+        if (!text.match(/^\d+/) && text.length > 2 && text.length < 100) {
+          location = text;
+          break;
+        }
+      }
+    }
+
+    // Try to extract company from experience section
+    if (!company) {
+      const expSection = document.querySelector('#experience') ||
+                         document.querySelector('section:has(#experience)') ||
+                         document.querySelector('[id*="experience"]');
+      if (expSection) {
+        // Look for company names in the experience section
+        const spans = expSection.querySelectorAll('span[aria-hidden="true"]');
+        for (const span of spans) {
+          const text = span.textContent?.trim();
+          if (text && text.length > 2 && text.length < 80 && !text.includes('·')) {
+            company = text;
+            break;
+          }
+        }
+      }
+    }
+
+    console.log('LinkedIn profile extraction:', { name, role, company, location });
+
+    return {
+      type: 'profile',
+      url,
+      name,
+      role,
+      company,
+      location,
+      pageText,
+      pageTitle,
+      extractedAt: new Date().toISOString()
+    };
+  }
+
   // LinkedIn extractor - updated for current LinkedIn layout
   function extractLinkedIn() {
     console.log('Starting LinkedIn extraction...');
@@ -345,6 +465,31 @@
 
   // Listen for messages from popup or background
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    // Detect page type (job vs profile vs other)
+    if (request.action === 'detectPageType') {
+      const site = detectSite();
+      let pageType = 'other';
+
+      if (site === 'linkedin') {
+        pageType = detectLinkedInPageType();
+      } else if (['greenhouse', 'lever', 'ashby', 'workday', 'wttj'].includes(site)) {
+        pageType = 'job';
+      }
+
+      sendResponse({ success: true, site, pageType });
+    }
+
+    // Extract LinkedIn profile data for contact capture
+    if (request.action === 'extractProfile') {
+      const site = detectSite();
+      if (site === 'linkedin') {
+        const data = extractLinkedInProfile();
+        sendResponse({ success: true, data });
+      } else {
+        sendResponse({ success: false, error: 'Profile extraction only supported on LinkedIn' });
+      }
+    }
+
     // New: Extract raw page content for AI processing
     if (request.action === 'extractPageContent') {
       const data = extractPageContent();
