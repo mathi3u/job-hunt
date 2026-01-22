@@ -108,8 +108,8 @@ export function Dashboard() {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
             Track your job search progress
             {hasFilters && (
               <span className="ml-2 text-primary-600">
@@ -121,14 +121,14 @@ export function Dashboard() {
       </div>
 
       {/* Filters */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center gap-2 mb-3">
-          <Filter className="h-4 w-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Filters</span>
+          <Filter className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filters</span>
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+              className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <X className="h-3.5 w-3.5" />
               Clear all
@@ -137,11 +137,11 @@ export function Dashboard() {
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Company</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Company</label>
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Companies</option>
               {filterOptions.companies.map((company) => (
@@ -152,11 +152,11 @@ export function Dashboard() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Job Title</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Job Title</label>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Roles</option>
               {filterOptions.roles.map((role) => (
@@ -167,11 +167,11 @@ export function Dashboard() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Location</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Location</label>
             <select
               value={locationFilter}
               onChange={(e) => setLocationFilter(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Locations</option>
               {filterOptions.locations.map((location) => (
@@ -221,8 +221,8 @@ export function Dashboard() {
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Phase Distribution */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="mb-4 font-semibold text-gray-900">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">
             Pipeline Distribution
           </h3>
           {pieData.length > 0 ? (
@@ -245,15 +245,15 @@ export function Dashboard() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[250px] items-center justify-center text-gray-500">
+            <div className="flex h-[250px] items-center justify-center text-gray-500 dark:text-gray-400">
               No opportunities yet
             </div>
           )}
         </div>
 
         {/* Status Breakdown */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <h3 className="mb-4 font-semibold text-gray-900">By Status</h3>
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">By Status</h3>
           {barData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={barData} layout="vertical">
@@ -274,7 +274,7 @@ export function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[250px] items-center justify-center text-gray-500">
+            <div className="flex h-[250px] items-center justify-center text-gray-500 dark:text-gray-400">
               No opportunities yet
             </div>
           )}
@@ -282,8 +282,8 @@ export function Dashboard() {
       </div>
 
       {/* Pipeline Funnel */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h3 className="mb-4 font-semibold text-gray-900">Pipeline Funnel</h3>
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">Pipeline Funnel</h3>
         <div className="flex items-end justify-between gap-2">
           <FunnelStage
             label="Identified"
@@ -341,21 +341,21 @@ interface StatCardProps {
 }
 
 const colorClasses = {
-  blue: 'bg-blue-50 text-blue-600',
-  yellow: 'bg-yellow-50 text-yellow-600',
-  green: 'bg-green-50 text-green-600',
-  purple: 'bg-purple-50 text-purple-600',
-  red: 'bg-red-50 text-red-600',
+  blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+  yellow: 'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400',
+  green: 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+  purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+  red: 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
 }
 
 function StatCard({ title, value, icon, color }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
+    <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
       <div className="flex items-center gap-4">
         <div className={`rounded-lg p-3 ${colorClasses[color]}`}>{icon}</div>
         <div>
-          <p className="text-sm text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
         </div>
       </div>
     </div>
@@ -378,8 +378,8 @@ function FunnelStage({ label, count, color, maxCount }: FunnelStageProps) {
         style={{ height: `${height}px` }}
       />
       <div className="mt-2 text-center">
-        <div className="text-lg font-bold text-gray-900">{count}</div>
-        <div className="text-xs text-gray-500">{label}</div>
+        <div className="text-lg font-bold text-gray-900 dark:text-white">{count}</div>
+        <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
       </div>
     </div>
   )

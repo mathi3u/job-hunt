@@ -223,8 +223,8 @@ export function Companies() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
-          <p className="text-gray-600">Track companies you're interested in</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Companies</h1>
+          <p className="text-gray-600 dark:text-gray-400">Track companies you're interested in</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
@@ -236,7 +236,7 @@ export function Companies() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">{error}</div>
       )}
 
       {/* Search */}
@@ -247,93 +247,93 @@ export function Companies() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by name, industry, location..."
-          className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2"
+          className="w-full rounded-md border border-gray-300 pl-10 pr-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       {/* Add Form */}
       {showAddForm && (
-        <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Add New Company</h2>
+        <div className="rounded-lg border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-6">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white dark:text-white">Add New Company</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name *</label>
               <input
                 type="text"
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
                 placeholder="Company name"
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Industry</label>
               <input
                 type="text"
                 value={addIndustry}
                 onChange={(e) => setAddIndustry(e.target.value)}
                 placeholder="Tech, Finance, etc."
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Website</label>
               <input
                 type="url"
                 value={addWebsite}
                 onChange={(e) => setAddWebsite(e.target.value)}
                 placeholder="https://..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">LinkedIn</label>
               <input
                 type="url"
                 value={addLinkedin}
                 onChange={(e) => setAddLinkedin(e.target.value)}
                 placeholder="https://linkedin.com/company/..."
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Headquarters</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Headquarters</label>
               <input
                 type="text"
                 value={addHeadquarters}
                 onChange={(e) => setAddHeadquarters(e.target.value)}
                 placeholder="City, Country"
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Company Size</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Size</label>
               <input
                 type="text"
                 value={addSize}
                 onChange={(e) => setAddSize(e.target.value)}
                 placeholder="50-200, 1000+, etc."
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
               <textarea
                 value={addDescription}
                 onChange={(e) => setAddDescription(e.target.value)}
                 placeholder="What the company does..."
                 rows={2}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
               <textarea
                 value={addNotes}
                 onChange={(e) => setAddNotes(e.target.value)}
                 placeholder="Your research notes..."
                 rows={2}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
           </div>
@@ -357,7 +357,7 @@ export function Companies() {
             </button>
             <button
               onClick={resetAddForm}
-              className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Cancel
             </button>
@@ -367,9 +367,9 @@ export function Companies() {
 
       {/* Company List */}
       {filteredCompanies.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center">
+        <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-12 text-center">
           <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">
             {searchQuery ? 'No companies found' : 'No companies yet'}
           </h3>
           <p className="mt-2 text-gray-500">
@@ -392,7 +392,7 @@ export function Companies() {
           {filteredCompanies.map((company) => (
             <div
               key={company.id}
-              className={`relative rounded-lg border bg-white p-4 cursor-pointer transition-all hover:shadow-md ${
+              className={`relative rounded-lg border bg-white dark:bg-gray-800 p-4 cursor-pointer transition-all hover:shadow-md ${
                 selectedCompany?.id === company.id
                   ? 'border-primary-500 ring-2 ring-primary-200'
                   : 'border-gray-200'
@@ -401,7 +401,7 @@ export function Companies() {
             >
               {/* Delete Confirmation */}
               {deletingId === company.id && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/95 z-10">
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/95 dark:bg-gray-800/95 z-10">
                   <p className="mb-3 text-sm font-medium text-gray-900">Delete this company?</p>
                   <div className="flex gap-2">
                     <button
@@ -427,55 +427,55 @@ export function Companies() {
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm font-medium"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white font-medium"
                     placeholder="Name"
                   />
                   <input
                     type="text"
                     value={editIndustry}
                     onChange={(e) => setEditIndustry(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Industry"
                   />
                   <input
                     type="url"
                     value={editWebsite}
                     onChange={(e) => setEditWebsite(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Website"
                   />
                   <input
                     type="url"
                     value={editLinkedin}
                     onChange={(e) => setEditLinkedin(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="LinkedIn URL"
                   />
                   <input
                     type="text"
                     value={editHeadquarters}
                     onChange={(e) => setEditHeadquarters(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Headquarters"
                   />
                   <input
                     type="text"
                     value={editSize}
                     onChange={(e) => setEditSize(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Company size"
                   />
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     rows={2}
                     placeholder="Description"
                   />
                   <textarea
                     value={editNotes}
                     onChange={(e) => setEditNotes(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     rows={2}
                     placeholder="Notes"
                   />
@@ -502,7 +502,7 @@ export function Companies() {
                   {/* Header */}
                   <div className="mb-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-gray-900">{company.name}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{company.name}</h3>
                       {company.opportunity_count > 0 && (
                         <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
                           <Briefcase className="h-3 w-3" />
@@ -511,12 +511,12 @@ export function Companies() {
                       )}
                     </div>
                     {company.industry && (
-                      <p className="text-sm text-gray-500">{company.industry}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{company.industry}</p>
                     )}
                   </div>
 
                   {/* Meta */}
-                  <div className="space-y-1 text-xs text-gray-500">
+                  <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                     {company.headquarters && (
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
@@ -533,7 +533,7 @@ export function Companies() {
 
                   {/* Description */}
                   {company.description && (
-                    <p className="mt-2 text-xs text-gray-600 line-clamp-2">{company.description}</p>
+                    <p className="mt-2 text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{company.description}</p>
                   )}
 
                   {/* Actions */}
@@ -543,7 +543,7 @@ export function Companies() {
                         href={company.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                       >
                         <Globe className="h-3 w-3" />
                         Website
@@ -565,7 +565,7 @@ export function Companies() {
                         e.stopPropagation()
                         handleEdit(company)
                       }}
-                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                       <Edit2 className="h-3 w-3" />
                       Edit
@@ -590,13 +590,13 @@ export function Companies() {
 
       {/* Selected Company Jobs */}
       {selectedCompany && (
-        <div id="company-jobs-panel" className="rounded-lg border border-primary-200 bg-primary-50 p-6">
+        <div id="company-jobs-panel" className="rounded-lg border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white dark:text-white">
                 Jobs at {selectedCompany.name}
               </h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {companyJobs.length} opportunit{companyJobs.length !== 1 ? 'ies' : 'y'}
               </p>
             </div>
@@ -620,18 +620,18 @@ export function Companies() {
                 <div
                   key={job.opportunity_id}
                   onClick={() => navigate(`/pipeline?open=${job.opportunity_id}`)}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 p-3 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900 truncate">
+                      <h4 className="font-medium text-gray-900 dark:text-white truncate">
                         {job.posting_role || job.title || 'Untitled Role'}
                       </h4>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[job.status]}`}>
                         {STATUS_LABELS[job.status]}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                       {job.location && <span>{job.location}</span>}
                       {job.salary_range && <span>{job.salary_range}</span>}
                     </div>

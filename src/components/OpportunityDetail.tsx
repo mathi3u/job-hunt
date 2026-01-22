@@ -256,8 +256,8 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="rounded-lg bg-white p-8">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-8">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
         </div>
       </div>
@@ -266,9 +266,9 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
 
   if (error || !data) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="rounded-lg bg-white p-8">
-          <p className="text-red-600">Failed to load opportunity details</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="rounded-lg bg-white dark:bg-gray-800 p-8">
+          <p className="text-red-600 dark:text-red-400">Failed to load opportunity details</p>
           <button onClick={onClose} className="mt-4 text-primary-600 hover:underline">
             Close
           </button>
@@ -283,13 +283,13 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-start justify-center p-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-        <div className="relative w-full max-w-3xl rounded-lg bg-white shadow-xl">
+        <div className="fixed inset-0 bg-black/60" onClick={onClose} />
+        <div className="relative w-full max-w-3xl rounded-lg bg-white dark:bg-gray-800 shadow-xl">
           {/* Header */}
-          <div className="flex items-start justify-between border-b p-6">
+          <div className="flex items-start justify-between border-b border-gray-200 dark:border-gray-700 p-6">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   {posting?.role || data.title || 'Untitled Opportunity'}
                 </h2>
                 <select
@@ -310,13 +310,13 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   </span>
                 )}
                 {(data.status === 'closed_won' || data.status === 'closed_lost') && data.closed_at && (
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     on {format(new Date(data.closed_at), 'MMM d, yyyy')}
                   </span>
                 )}
               </div>
               {company && (
-                <div className="mt-1 flex items-center gap-2 text-gray-600">
+                <div className="mt-1 flex items-center gap-2 text-gray-600 dark:text-gray-400">
                   <Building2 className="h-4 w-4" />
                   <span className="font-medium">{company.name}</span>
                   {company.industry && <span className="text-gray-400">({company.industry})</span>}
@@ -325,7 +325,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
             </div>
             <button
               onClick={onClose}
-              className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
             >
               <X className="h-5 w-5" />
             </button>
@@ -334,7 +334,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
           {/* Content */}
           <div className="space-y-6 p-6">
             {/* Quick Info */}
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 dark:text-gray-400">
               {posting?.location && (
                 <div className="flex items-center gap-1">
                   <MapPin className="h-4 w-4" />
@@ -368,7 +368,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
 
             {/* Next Actions - Show for early stages */}
             {['identified', 'researching', 'preparing'].includes(data.status) && (
-              <div className="rounded-lg border-2 border-primary-200 bg-primary-50 p-4">
+              <div className="rounded-lg border-2 border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-4">
                 <h3 className="mb-3 font-semibold text-primary-900">Next Actions</h3>
                 <div className="flex flex-wrap gap-2">
                   {/* Apply Button */}
@@ -390,7 +390,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
                     >
                       <Linkedin className="h-4 w-4" />
                       Find Contacts
@@ -403,7 +403,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
                     >
                       <Search className="h-4 w-4" />
                       Research Company
@@ -568,7 +568,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
             {/* Interviews Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-white">
                   Interviews {data.interviews.length > 0 && `(${data.interviews.length})`}
                 </h3>
                 <button
@@ -594,28 +594,28 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
 
               {/* Add Interview Form */}
               {showAddInterview && (
-                <div className="mb-4 rounded-lg border border-primary-200 bg-primary-50 p-4">
-                  <h4 className="font-medium text-gray-900 mb-3">Schedule New Interview</h4>
+                <div className="mb-4 rounded-lg border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-4">
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-3">Schedule New Interview</h4>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Date & Time *
                       </label>
                       <input
                         type="datetime-local"
                         value={newInterview.scheduled_at}
                         onChange={(e) => setNewInterview({ ...newInterview, scheduled_at: e.target.value })}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Interview Type
                       </label>
                       <select
                         value={newInterview.interview_type}
                         onChange={(e) => setNewInterview({ ...newInterview, interview_type: e.target.value as InterviewType })}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
                       >
                         {ALL_INTERVIEW_TYPES.map((type) => (
                           <option key={type} value={type}>
@@ -625,7 +625,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Location / Link
                       </label>
                       <input
@@ -633,11 +633,11 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         value={newInterview.location}
                         onChange={(e) => setNewInterview({ ...newInterview, location: e.target.value })}
                         placeholder="Zoom, Phone, Office..."
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Prep Notes
                       </label>
                       <textarea
@@ -645,7 +645,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         onChange={(e) => setNewInterview({ ...newInterview, prep_notes: e.target.value })}
                         placeholder="Topics to review, questions to ask..."
                         rows={2}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
                       />
                     </div>
                   </div>
@@ -660,7 +660,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     </button>
                     <button
                       onClick={() => setShowAddInterview(false)}
-                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
@@ -674,7 +674,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   {data.interviews.map((interview) => (
                     <div
                       key={interview.id}
-                      className="rounded-lg border p-3"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 p-3"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -695,7 +695,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                                 : `Round ${interview.round || '?'}`}
                             </div>
                             {interview.scheduled_at && (
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {format(new Date(interview.scheduled_at), 'MMM d, yyyy h:mm a')}
                                 {interview.location && ` · ${interview.location}`}
                               </div>
@@ -709,7 +709,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         )}
                       </div>
                       {interview.prep_notes && (
-                        <div className="mt-2 text-sm text-gray-600 bg-gray-50 rounded p-2">
+                        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 rounded p-2">
                           <span className="font-medium">Prep:</span> {interview.prep_notes}
                         </div>
                       )}
@@ -717,19 +717,19 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">No interviews scheduled yet.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No interviews scheduled yet.</p>
               )}
             </div>
 
             {/* Key Skills */}
             {posting?.key_skills && posting.key_skills.length > 0 && (
               <div>
-                <h3 className="mb-2 font-semibold text-gray-900">Key Skills</h3>
+                <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">Key Skills</h3>
                 <div className="flex flex-wrap gap-2">
                   {posting.key_skills.map((skill, i) => (
                     <span
                       key={i}
-                      className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+                      className="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300"
                     >
                       {skill}
                     </span>
@@ -752,15 +752,15 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
             {/* Company Info */}
             {company?.description && (
               <div>
-                <h3 className="mb-2 font-semibold text-gray-900">About {company.name}</h3>
-                <p className="text-gray-600">{company.description}</p>
+                <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">About {company.name}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{company.description}</p>
               </div>
             )}
 
             {/* Notes Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-gray-900">Notes</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">Notes</h3>
                 {!editingNotes && (
                   <button
                     onClick={() => {
@@ -782,7 +782,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     onChange={(e) => setNotes(e.target.value)}
                     rows={4}
                     placeholder="Add your notes about this opportunity..."
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm"
                   />
                   <div className="mt-2 flex gap-2">
                     <button
@@ -795,30 +795,30 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     </button>
                     <button
                       onClick={() => setEditingNotes(false)}
-                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : data.notes ? (
-                <p className="whitespace-pre-wrap text-gray-600 bg-gray-50 rounded-lg p-3">{data.notes}</p>
+                <p className="whitespace-pre-wrap text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">{data.notes}</p>
               ) : (
-                <p className="text-sm text-gray-500">No notes yet.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">No notes yet.</p>
               )}
             </div>
 
             {/* Communications */}
             {data.communications.length > 0 && (
               <div>
-                <h3 className="mb-2 font-semibold text-gray-900">
+                <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">
                   Communications ({data.communications.length})
                 </h3>
                 <div className="space-y-2">
                   {data.communications.slice(0, 5).map((comm) => (
                     <div
                       key={comm.id}
-                      className="flex items-start gap-3 rounded-lg border p-3"
+                      className="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-gray-700 p-3"
                     >
                       <Mail className="mt-0.5 h-4 w-4 text-gray-400" />
                       <div className="flex-1">
@@ -826,12 +826,12 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                           <span className="text-sm font-medium capitalize">
                             {comm.comm_type.replace('_', ' ')}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {format(new Date(comm.occurred_at), 'MMM d, yyyy')}
                           </span>
                         </div>
                         {comm.subject && (
-                          <p className="text-sm text-gray-600">{comm.subject}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{comm.subject}</p>
                         )}
                       </div>
                     </div>
@@ -845,16 +845,16 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
         {/* Closed Reason Picker Modal */}
         {showClosedReasonPicker && (
           <div className="fixed inset-0 z-60 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black/50" onClick={() => setShowClosedReasonPicker(false)} />
-            <div className="relative rounded-lg bg-white p-6 shadow-xl max-w-sm w-full mx-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Why are you closing this?</h3>
+            <div className="fixed inset-0 bg-black/60" onClick={() => setShowClosedReasonPicker(false)} />
+            <div className="relative rounded-lg bg-white dark:bg-gray-800 p-6 shadow-xl max-w-sm w-full mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Why are you closing this?</h3>
               <div className="space-y-2">
                 {ALL_CLOSED_REASONS.map((reason) => (
                   <button
                     key={reason}
                     onClick={() => handleClosedWithReason(reason)}
                     disabled={updating}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 transition-colors disabled:opacity-50"
                   >
                     {CLOSED_REASON_LABELS[reason]}
                   </button>
@@ -862,7 +862,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
               </div>
               <button
                 onClick={() => setShowClosedReasonPicker(false)}
-                className="mt-4 w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                className="mt-4 w-full px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 Cancel
               </button>

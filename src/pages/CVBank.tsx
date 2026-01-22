@@ -117,8 +117,8 @@ export function CVBank() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">CV Bank</h1>
-          <p className="text-gray-600">Manage your CVs and resumes for job applications</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">CV Bank</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your CVs and resumes for job applications</p>
         </div>
         <button
           onClick={() => setShowUploadForm(true)}
@@ -130,19 +130,19 @@ export function CVBank() {
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">
           {error}
         </div>
       )}
 
       {/* Upload Form */}
       {showUploadForm && (
-        <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
+        <div className="rounded-lg border border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Upload New CV</h2>
           <div className="space-y-4">
             {/* File Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Select File *
               </label>
               <div className="flex items-center gap-4">
@@ -155,7 +155,7 @@ export function CVBank() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   <Upload className="h-4 w-4" />
                   Choose File
@@ -166,12 +166,12 @@ export function CVBank() {
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-xs text-gray-500">Accepted formats: PDF, DOC, DOCX</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Accepted formats: PDF, DOC, DOCX</p>
             </div>
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name *
               </label>
               <input
@@ -179,13 +179,13 @@ export function CVBank() {
                 value={uploadName}
                 onChange={(e) => setUploadName(e.target.value)}
                 placeholder="e.g., Software Engineer CV 2024"
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Description
               </label>
               <textarea
@@ -193,19 +193,19 @@ export function CVBank() {
                 onChange={(e) => setUploadDescription(e.target.value)}
                 placeholder="Optional notes about this CV version..."
                 rows={2}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               />
             </div>
 
             {/* Language */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Language
               </label>
               <select
                 value={uploadLanguage}
                 onChange={(e) => setUploadLanguage(e.target.value as DocLanguage)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               >
                 {(Object.keys(DOC_LANGUAGE_LABELS) as DocLanguage[]).map((lang) => (
                   <option key={lang} value={lang}>
@@ -242,7 +242,7 @@ export function CVBank() {
                   setUploadDescription('')
                   setUploadLanguage('en')
                 }}
-                className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -253,9 +253,9 @@ export function CVBank() {
 
       {/* CV List */}
       {documents.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-gray-300 p-12 text-center">
+        <div className="rounded-lg border border-dashed border-gray-300 dark:border-gray-600 p-12 text-center">
           <FileText className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No CVs yet</h3>
+          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No CVs yet</h3>
           <p className="mt-2 text-gray-500">Upload your first CV to get started</p>
           <button
             onClick={() => setShowUploadForm(true)}
@@ -271,7 +271,7 @@ export function CVBank() {
             <div
               key={doc.id}
               className={`relative rounded-lg border p-4 ${
-                doc.is_default ? 'border-primary-300 bg-primary-50' : 'border-gray-200 bg-white'
+                doc.is_default ? 'border-primary-300 bg-primary-50 dark:border-primary-700 dark:bg-primary-900/30' : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
               }`}
             >
               {/* Default Badge */}
@@ -284,7 +284,7 @@ export function CVBank() {
 
               {/* Delete Confirmation */}
               {deletingId === doc.id && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/95">
+                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/95 dark:bg-gray-800/95">
                   <p className="mb-3 text-sm font-medium text-gray-900">Delete this CV?</p>
                   <div className="flex gap-2">
                     <button
@@ -310,20 +310,20 @@ export function CVBank() {
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Name"
                   />
                   <textarea
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     rows={2}
                     placeholder="Description"
                   />
                   <select
                     value={editLanguage}
                     onChange={(e) => setEditLanguage(e.target.value as DocLanguage)}
-                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="w-full rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   >
                     {(Object.keys(DOC_LANGUAGE_LABELS) as DocLanguage[]).map((lang) => (
                       <option key={lang} value={lang}>
@@ -355,15 +355,15 @@ export function CVBank() {
                   <div className="mb-3 flex items-start gap-3">
                     <FileText className="mt-0.5 h-8 w-8 text-gray-400" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">{doc.name}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate">{doc.name}</h3>
                       {doc.description && (
-                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">{doc.description}</p>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{doc.description}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Meta */}
-                  <div className="mb-3 text-xs text-gray-500">
+                  <div className="mb-3 text-xs text-gray-500 dark:text-gray-400">
                     <p>Uploaded {format(new Date(doc.created_at), 'MMM d, yyyy')}</p>
                     <p>{formatFileSize(doc.file_size)} • {doc.file_type?.split('/')[1]?.toUpperCase() || 'File'} • {DOC_LANGUAGE_LABELS[doc.language]}</p>
                   </div>
@@ -372,14 +372,14 @@ export function CVBank() {
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => handleViewDocument(doc.file_path)}
-                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                       <ExternalLink className="h-3 w-3" />
                       View
                     </button>
                     <button
                       onClick={() => handleEdit(doc)}
-                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                      className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                     >
                       <Edit2 className="h-3 w-3" />
                       Edit
@@ -387,7 +387,7 @@ export function CVBank() {
                     {!doc.is_default && (
                       <button
                         onClick={() => setDefaultDocument(doc.id)}
-                        className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                        className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                       >
                         <Star className="h-3 w-3" />
                         Set Default

@@ -63,16 +63,16 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
 
   return (
     <div
-      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
       onClick={() => onView(item)}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <PriorityIndicator priority={item.priority} />
-            <h3 className="font-semibold text-gray-900 truncate">{role}</h3>
+            <h3 className="font-semibold text-gray-900 truncate dark:text-white">{role}</h3>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-sm text-gray-600">
+          <div className="mt-1 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Building2 className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{company}</span>
@@ -91,7 +91,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
               e.stopPropagation()
               onDelete(item.opportunity_id)
             }}
-            className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+            className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30"
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -100,7 +100,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
       </div>
 
       {/* Key metrics row */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
         {item.salary_range && (
           <div className="flex items-center gap-1">
             <DollarSign className="h-3.5 w-3.5" />
@@ -108,7 +108,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
           </div>
         )}
         {item.next_interview && (
-          <div className="flex items-center gap-1 font-medium text-indigo-600">
+          <div className="flex items-center gap-1 font-medium text-indigo-600 dark:text-indigo-400">
             <Clock className="h-3.5 w-3.5" />
             <span>Interview {format(new Date(item.next_interview), 'MMM d')}</span>
           </div>
@@ -120,7 +120,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
           </div>
         )}
         {item.posted_date && (
-          <div className="flex items-center gap-1 text-gray-400">
+          <div className="flex items-center gap-1 text-gray-400 dark:text-gray-500">
             <Calendar className="h-3.5 w-3.5" />
             <span>Posted {format(new Date(item.posted_date), 'MMM d')}</span>
           </div>
@@ -130,12 +130,12 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
       {/* Status-specific info */}
       <div className="mt-2 flex items-center justify-between">
         {item.interview_stage && item.status === 'interviewing' && (
-          <div className="rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700">
+          <div className="rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400">
             {item.interview_stage.replace('_', ' ')}
           </div>
         )}
         {!item.interview_stage && <div />}
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-gray-400 dark:text-gray-500">
           Updated {lastActionTime}
         </div>
       </div>
