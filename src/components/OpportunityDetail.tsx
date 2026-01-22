@@ -106,10 +106,16 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
     setUpdating(true)
 
     // Set closed_at for closed_won, clear it for other statuses
+    // Set target_apply_date to today when marking as applied
     const updates: Record<string, unknown> = {
       status: newStatus,
       closed_reason: null,
       closed_at: newStatus === 'closed_won' ? new Date().toISOString() : null,
+    }
+
+    // Auto-fill application date when marking as applied
+    if (newStatus === 'applied') {
+      updates.target_apply_date = new Date().toISOString().split('T')[0]
     }
 
     const { error } = await supabase
@@ -426,9 +432,11 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   )}
                   <button
                     onClick={() => handleStatusChange('applied')}
-                    className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
+                    disabled={updating}
+                    className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
                   >
-                    Mark Applied
+                    <CheckCircle2 className="h-4 w-4" />
+                    Applied
                   </button>
                 </div>
               </div>
@@ -450,9 +458,10 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   {!editingApplication && (
                     <button
                       onClick={() => {
+                        const today = new Date().toISOString().split('T')[0]
                         setApplicationDetails({
                           resume_url: data.resume_url || '',
-                          applied_date: data.target_apply_date || '',
+                          applied_date: data.target_apply_date || today,
                           source_detail: data.source_detail || '',
                         })
                         setEditingApplication(true)
@@ -563,7 +572,19 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   Interviews {data.interviews.length > 0 && `(${data.interviews.length})`}
                 </h3>
                 <button
-                  onClick={() => setShowAddInterview(true)}
+                  onClick={() => {
+                    // Default to today at 9:00 AM
+                    const now = new Date()
+                    now.setHours(9, 0, 0, 0)
+                    const defaultDateTime = now.toISOString().slice(0, 16)
+                    setNewInterview({
+                      scheduled_at: defaultDateTime,
+                      interview_type: 'recruiter_screen',
+                      location: '',
+                      prep_notes: '',
+                    })
+                    setShowAddInterview(true)
+                  }}
                   className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
                 >
                   <Plus className="h-4 w-4" />

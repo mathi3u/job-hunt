@@ -333,7 +333,8 @@ CREATE POLICY "Allow all" ON communications FOR ALL USING (true);
 -- ============================================================================
 
 -- Pipeline overview
-CREATE VIEW pipeline_overview AS
+CREATE VIEW pipeline_overview
+WITH (security_invoker = true) AS
 SELECT
   o.id AS opportunity_id,
   o.title,
@@ -345,12 +346,14 @@ SELECT
   jp.role AS posting_role,
   jp.posted_date,
   jp.salary_range,
+  jp.location,
   ip.stage AS interview_stage,
   ip.outcome AS interview_outcome,
   (SELECT COUNT(*) FROM interviews i WHERE i.process_id = ip.id) AS interview_count,
   (SELECT MAX(scheduled_at) FROM interviews i WHERE i.process_id = ip.id) AS next_interview,
   (SELECT COUNT(*) FROM communications cm WHERE cm.opportunity_id = o.id) AS comm_count,
-  o.created_at
+  o.created_at,
+  o.updated_at
 FROM opportunities o
 LEFT JOIN companies c ON o.company_id = c.id
 LEFT JOIN job_postings jp ON jp.opportunity_id = o.id
@@ -358,7 +361,8 @@ LEFT JOIN interview_processes ip ON ip.opportunity_id = o.id
 ORDER BY o.priority ASC, o.updated_at DESC;
 
 -- Upcoming interviews
-CREATE VIEW upcoming_interviews AS
+CREATE VIEW upcoming_interviews
+WITH (security_invoker = true) AS
 SELECT
   i.id AS interview_id,
   i.scheduled_at,
@@ -381,7 +385,8 @@ WHERE i.scheduled_at >= NOW()
 ORDER BY i.scheduled_at ASC;
 
 -- Follow-ups needed
-CREATE VIEW follow_ups_needed AS
+CREATE VIEW follow_ups_needed
+WITH (security_invoker = true) AS
 SELECT
   cm.id AS comm_id,
   cm.comm_type,

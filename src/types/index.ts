@@ -271,12 +271,14 @@ export interface PipelineItem {
   posting_role: string | null
   posted_date: string | null
   salary_range: string | null
+  location: string | null
   interview_stage: InterviewStage | null
   interview_outcome: ProcessOutcome | null
   interview_count: number
   next_interview: string | null
   comm_count: number
   created_at: string
+  updated_at: string
 }
 
 // Opportunity with related data for detail view

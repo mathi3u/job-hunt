@@ -59,7 +59,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
   const role = item.posting_role || item.title || 'Untitled Role'
   const company = item.company_name || 'Unknown Company'
   const SourceIcon = item.source ? SOURCE_ICONS[item.source] : Briefcase
-  const timeAgo = formatDistanceToNow(new Date(item.created_at), { addSuffix: true })
+  const lastActionTime = formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })
 
   return (
     <div
@@ -136,7 +136,7 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
         )}
         {!item.interview_stage && <div />}
         <div className="text-xs text-gray-400">
-          Added {timeAgo}
+          Updated {lastActionTime}
         </div>
       </div>
     </div>

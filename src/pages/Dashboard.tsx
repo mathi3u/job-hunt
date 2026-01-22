@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react'
 import {
   BarChart,
   Bar,
@@ -10,7 +11,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { Briefcase, TrendingUp, Clock, AlertCircle, Users } from 'lucide-react'
+import { Briefcase, TrendingUp, Clock, AlertCircle, Users, Filter, X } from 'lucide-react'
 import { usePipeline, usePipelineStats } from '@/hooks/usePipeline'
 import { STATUS_LABELS } from '@/types'
 
@@ -27,7 +28,49 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function Dashboard() {
   const { items, loading, error } = usePipeline()
-  const stats = usePipelineStats(items)
+
+  // Filter state
+  const [companyFilter, setCompanyFilter] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
+  const [locationFilter, setLocationFilter] = useState('')
+
+  // Get unique values for filter dropdowns
+  const filterOptions = useMemo(() => {
+    const companies = new Set<string>()
+    const roles = new Set<string>()
+    const locations = new Set<string>()
+
+    items.forEach((item) => {
+      if (item.company_name) companies.add(item.company_name)
+      if (item.posting_role) roles.add(item.posting_role)
+      if (item.location) locations.add(item.location)
+    })
+
+    return {
+      companies: Array.from(companies).sort(),
+      roles: Array.from(roles).sort(),
+      locations: Array.from(locations).sort(),
+    }
+  }, [items])
+
+  // Apply filters
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      if (companyFilter && item.company_name !== companyFilter) return false
+      if (roleFilter && item.posting_role !== roleFilter) return false
+      if (locationFilter && item.location !== locationFilter) return false
+      return true
+    })
+  }, [items, companyFilter, roleFilter, locationFilter])
+
+  const hasFilters = companyFilter || roleFilter || locationFilter
+  const clearFilters = () => {
+    setCompanyFilter('')
+    setRoleFilter('')
+    setLocationFilter('')
+  }
+
+  const stats = usePipelineStats(filteredItems)
 
   if (loading) {
     return (
@@ -63,9 +106,82 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
-        <p className="mt-1 text-gray-600">Track your job search progress</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+          <p className="mt-1 text-gray-600">
+            Track your job search progress
+            {hasFilters && (
+              <span className="ml-2 text-primary-600">
+                (filtered: {filteredItems.length} of {items.length})
+              </span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-gray-500" />
+          <span className="text-sm font-medium text-gray-700">Filters</span>
+          {hasFilters && (
+            <button
+              onClick={clearFilters}
+              className="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear all
+            </button>
+          )}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Company</label>
+            <select
+              value={companyFilter}
+              onChange={(e) => setCompanyFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            >
+              <option value="">All Companies</option>
+              {filterOptions.companies.map((company) => (
+                <option key={company} value={company}>
+                  {company}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Job Title</label>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            >
+              <option value="">All Roles</option>
+              {filterOptions.roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Location</label>
+            <select
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            >
+              <option value="">All Locations</option>
+              {filterOptions.locations.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
