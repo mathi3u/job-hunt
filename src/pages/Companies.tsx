@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Building2,
   Plus,
@@ -11,32 +12,78 @@ import {
   MapPin,
   Users,
   Search,
+  Briefcase,
+  ChevronRight,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import type { Company } from '@/types'
+import type { Company, PipelineItem } from '@/types'
+import { STATUS_LABELS, STATUS_COLORS } from '@/types'
+
+interface CompanyWithCount extends Company {
+  opportunity_count: number
+}
 
 export function Companies() {
-  const [companies, setCompanies] = useState<Company[]>([])
+  const navigate = useNavigate()
+  const [companies, setCompanies] = useState<CompanyWithCount[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Fetch companies
+  // Selected company to show jobs
+  const [selectedCompany, setSelectedCompany] = useState<CompanyWithCount | null>(null)
+  const [companyJobs, setCompanyJobs] = useState<PipelineItem[]>([])
+  const [loadingJobs, setLoadingJobs] = useState(false)
+
+  // Fetch companies with opportunity counts
   const fetchCompanies = async () => {
     setLoading(true)
     const { data, error: fetchError } = await supabase
       .from('companies')
-      .select('*')
+      .select('*, opportunities(count)')
       .order('name', { ascending: true })
 
     if (fetchError) {
       setError(fetchError.message)
       setCompanies([])
     } else {
-      setCompanies(data as Company[])
+      // Transform data to include opportunity_count
+      const companiesWithCount = (data || []).map((company: any) => ({
+        ...company,
+        opportunity_count: company.opportunities?.[0]?.count || 0,
+      }))
+      setCompanies(companiesWithCount)
     }
     setLoading(false)
   }
+
+  // Fetch jobs for a specific company
+  const fetchCompanyJobs = async (companyName: string) => {
+    setLoadingJobs(true)
+    const { data, error: fetchError } = await supabase
+      .from('pipeline_overview')
+      .select('*')
+      .eq('company_name', companyName)
+      .order('updated_at', { ascending: false })
+
+    if (!fetchError && data) {
+      setCompanyJobs(data as PipelineItem[])
+    }
+    setLoadingJobs(false)
+  }
+
+  // When a company is selected, fetch its jobs and scroll to panel
+  useEffect(() => {
+    if (selectedCompany) {
+      fetchCompanyJobs(selectedCompany.name)
+      // Scroll to jobs panel after a brief delay
+      setTimeout(() => {
+        document.getElementById('company-jobs-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    } else {
+      setCompanyJobs([])
+    }
+  }, [selectedCompany])
 
   useEffect(() => {
     fetchCompanies()
@@ -343,7 +390,15 @@ export function Companies() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredCompanies.map((company) => (
-            <div key={company.id} className="relative rounded-lg border border-gray-200 bg-white p-4">
+            <div
+              key={company.id}
+              className={`relative rounded-lg border bg-white p-4 cursor-pointer transition-all hover:shadow-md ${
+                selectedCompany?.id === company.id
+                  ? 'border-primary-500 ring-2 ring-primary-200'
+                  : 'border-gray-200'
+              }`}
+              onClick={() => setSelectedCompany(selectedCompany?.id === company.id ? null : company)}
+            >
               {/* Delete Confirmation */}
               {deletingId === company.id && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-lg bg-white/95 z-10">
@@ -446,7 +501,15 @@ export function Companies() {
                 <>
                   {/* Header */}
                   <div className="mb-2">
-                    <h3 className="font-semibold text-gray-900">{company.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900">{company.name}</h3>
+                      {company.opportunity_count > 0 && (
+                        <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+                          <Briefcase className="h-3 w-3" />
+                          {company.opportunity_count} job{company.opportunity_count !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
                     {company.industry && (
                       <p className="text-sm text-gray-500">{company.industry}</p>
                     )}
@@ -498,14 +561,20 @@ export function Companies() {
                       </a>
                     )}
                     <button
-                      onClick={() => handleEdit(company)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleEdit(company)
+                      }}
                       className="flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200"
                     >
                       <Edit2 className="h-3 w-3" />
                       Edit
                     </button>
                     <button
-                      onClick={() => setDeletingId(company.id)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDeletingId(company.id)
+                      }}
                       className="flex items-center gap-1 rounded bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
                     >
                       <Trash2 className="h-3 w-3" />
@@ -516,6 +585,62 @@ export function Companies() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Selected Company Jobs */}
+      {selectedCompany && (
+        <div id="company-jobs-panel" className="rounded-lg border border-primary-200 bg-primary-50 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Jobs at {selectedCompany.name}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {companyJobs.length} opportunit{companyJobs.length !== 1 ? 'ies' : 'y'}
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedCompany(null)}
+              className="rounded p-1.5 text-gray-400 hover:bg-white hover:text-gray-600"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {loadingJobs ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+            </div>
+          ) : companyJobs.length === 0 ? (
+            <p className="py-4 text-center text-gray-500">No jobs found for this company.</p>
+          ) : (
+            <div className="space-y-2">
+              {companyJobs.map((job) => (
+                <div
+                  key={job.opportunity_id}
+                  onClick={() => navigate(`/pipeline?open=${job.opportunity_id}`)}
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 cursor-pointer hover:border-primary-300 hover:shadow-sm transition-all"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-medium text-gray-900 truncate">
+                        {job.posting_role || job.title || 'Untitled Role'}
+                      </h4>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[job.status]}`}>
+                        {STATUS_LABELS[job.status]}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                      {job.location && <span>{job.location}</span>}
+                      {job.salary_range && <span>{job.salary_range}</span>}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
