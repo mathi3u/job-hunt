@@ -71,7 +71,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
 
   if (loading) {
     return (
-      <div className={`w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-500 ${className}`}>
+      <div className={`w-full rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 dark:bg-gray-700 ${className}`}>
         Loading CVs...
       </div>
     )
@@ -91,12 +91,12 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between rounded-md border border-purple-300 bg-white px-3 py-2 text-left text-sm hover:bg-purple-50"
+        className="flex w-full items-center justify-between rounded-md border border-purple-300 dark:border-purple-700 bg-white dark:bg-gray-700 px-3 py-2 text-left text-sm hover:bg-purple-50 dark:hover:bg-gray-600 dark:text-white"
       >
         <div className="flex items-center gap-2 truncate">
-          <FileText className="h-4 w-4 text-purple-500" />
+          <FileText className="h-4 w-4 text-purple-500 dark:text-purple-400" />
           {uploading ? (
-            <span className="text-gray-500">Uploading...</span>
+            <span className="text-gray-500 dark:text-gray-400">Uploading...</span>
           ) : selectedDoc ? (
             <span className="truncate">
               {selectedDoc.name}
@@ -105,7 +105,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
               )}
             </span>
           ) : value ? (
-            <span className="text-gray-600 truncate">CV Selected</span>
+            <span className="text-gray-600 dark:text-gray-300 truncate">CV Selected</span>
           ) : (
             <span className="text-gray-400">Select a CV...</span>
           )}
@@ -115,10 +115,10 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-10 mt-1 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
           <div className="max-h-60 overflow-auto py-1">
             {documents.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-gray-500">
+              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                 No CVs uploaded yet
               </div>
             ) : (
@@ -129,14 +129,14 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
                     key={doc.id}
                     type="button"
                     onClick={() => handleSelectDoc(doc)}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-purple-50 ${
-                      isSelected ? 'bg-purple-100' : ''
+                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-purple-50 dark:hover:bg-gray-700 dark:text-white ${
+                      isSelected ? 'bg-purple-100 dark:bg-purple-900/50' : ''
                     }`}
                   >
                     <FileText className="h-4 w-4 text-gray-400" />
                     <span className="flex-1 truncate">{doc.name}</span>
                     {doc.is_default && (
-                      <span className="flex items-center gap-1 rounded bg-yellow-100 px-1.5 py-0.5 text-xs text-yellow-700">
+                      <span className="flex items-center gap-1 rounded bg-yellow-100 dark:bg-yellow-900/50 px-1.5 py-0.5 text-xs text-yellow-700 dark:text-yellow-400">
                         <Star className="h-3 w-3" />
                         Default
                       </span>
@@ -147,13 +147,13 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
             )}
 
             {/* Divider */}
-            <div className="my-1 border-t border-gray-200" />
+            <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
 
             {/* Upload Option */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-primary-600 hover:bg-primary-50"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700"
             >
               <Upload className="h-4 w-4" />
               Upload new CV...
@@ -170,7 +170,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
                   setIsOpen(false)
                 }
               }}
-              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50"
+              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <ExternalLink className="h-4 w-4" />
               Enter URL manually...

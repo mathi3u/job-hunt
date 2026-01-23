@@ -452,9 +452,9 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
 
             {/* Application Details - Show for applied status and beyond */}
             {['applied', 'interviewing', 'offer', 'closed_won', 'closed_lost'].includes(data.status) && (
-              <div className="rounded-lg border border-purple-200 bg-purple-50 p-4">
+              <div className="rounded-lg border border-purple-200 bg-purple-50 dark:border-purple-800 dark:bg-purple-900/30 p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-purple-900">Application Details</h3>
+                  <h3 className="font-semibold text-purple-900 dark:text-purple-300">Application Details</h3>
                   {!editingApplication && (
                     <button
                       onClick={() => {
@@ -466,7 +466,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         })
                         setEditingApplication(true)
                       }}
-                      className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700"
+                      className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
                     >
                       <Edit2 className="h-4 w-4" />
                       {data.resume_url || data.target_apply_date || data.source_detail ? 'Edit' : 'Add Details'}
@@ -477,18 +477,18 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                 {editingApplication ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-purple-800 mb-1">
+                      <label className="block text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
                         Application Date
                       </label>
                       <input
                         type="date"
                         value={applicationDetails.applied_date}
                         onChange={(e) => setApplicationDetails({ ...applicationDetails, applied_date: e.target.value })}
-                        className="w-full rounded-md border border-purple-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-purple-300 bg-white px-3 py-2 text-sm dark:border-purple-700 dark:bg-gray-700 dark:text-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-purple-800 mb-1">
+                      <label className="block text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
                         How did you apply?
                       </label>
                       <input
@@ -496,11 +496,11 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         value={applicationDetails.source_detail}
                         onChange={(e) => setApplicationDetails({ ...applicationDetails, source_detail: e.target.value })}
                         placeholder="LinkedIn Easy Apply, Company website, Email, Referral..."
-                        className="w-full rounded-md border border-purple-300 px-3 py-2 text-sm"
+                        className="w-full rounded-md border border-purple-300 bg-white px-3 py-2 text-sm dark:border-purple-700 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-purple-800 mb-1">
+                      <label className="block text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
                         CV/Resume Used
                       </label>
                       <CVSelector
@@ -519,7 +519,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       </button>
                       <button
                         onClick={() => setEditingApplication(false)}
-                        className="rounded-md border border-purple-300 px-3 py-1.5 text-sm font-medium text-purple-700 hover:bg-purple-100"
+                        className="rounded-md border border-purple-300 px-3 py-1.5 text-sm font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-900/50"
                       >
                         Cancel
                       </button>
@@ -528,36 +528,36 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                 ) : (
                   <div className="grid gap-2 sm:grid-cols-3 text-sm">
                     <div>
-                      <span className="text-purple-600">Applied:</span>{' '}
-                      <span className="text-purple-900 font-medium">
+                      <span className="text-purple-600 dark:text-purple-400">Applied:</span>{' '}
+                      <span className="text-purple-900 dark:text-purple-200 font-medium">
                         {data.target_apply_date
                           ? format(new Date(data.target_apply_date), 'MMM d, yyyy')
                           : 'Not set'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-purple-600">Method:</span>{' '}
-                      <span className="text-purple-900 font-medium">
+                      <span className="text-purple-600 dark:text-purple-400">Method:</span>{' '}
+                      <span className="text-purple-900 dark:text-purple-200 font-medium">
                         {data.source_detail || 'Not set'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-purple-600">CV:</span>{' '}
+                      <span className="text-purple-600 dark:text-purple-400">CV:</span>{' '}
                       {data.resume_url ? (
                         data.resume_url.startsWith('http') ? (
                           <a
                             href={data.resume_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-purple-700 underline hover:text-purple-900"
+                            className="text-purple-700 dark:text-purple-300 underline hover:text-purple-900 dark:hover:text-purple-100"
                           >
                             View CV
                           </a>
                         ) : (
-                          <span className="text-purple-900 font-medium">{data.resume_url}</span>
+                          <span className="text-purple-900 dark:text-purple-200 font-medium">{data.resume_url}</span>
                         )
                       ) : (
-                        <span className="text-purple-900 font-medium">Not set</span>
+                        <span className="text-purple-900 dark:text-purple-200 font-medium">Not set</span>
                       )}
                     </div>
                   </div>
