@@ -105,6 +105,13 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
   // Closed reason picker
   const [showClosedReasonPicker, setShowClosedReasonPicker] = useState(false)
 
+  // Job posting URLs editing
+  const [editingUrls, setEditingUrls] = useState(false)
+  const [urlDetails, setUrlDetails] = useState({
+    url: '',
+    company_url: '',
+  })
+
   const handleStatusChange = async (newStatus: OpportunityStatus) => {
     // If changing to closed_lost, show reason picker first
     if (newStatus === 'closed_lost') {
@@ -187,6 +194,25 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
     if (!error) {
       await refetch()
       setEditingApplication(false)
+    }
+    setUpdating(false)
+  }
+
+  const handleSaveUrls = async () => {
+    if (!data?.job_posting?.id) return
+
+    setUpdating(true)
+    const { error } = await supabase
+      .from('job_postings')
+      .update({
+        url: urlDetails.url || null,
+        company_url: urlDetails.company_url || null,
+      })
+      .eq('id', data.job_posting.id)
+
+    if (!error) {
+      await refetch()
+      setEditingUrls(false)
     }
     setUpdating(false)
   }
@@ -372,6 +398,108 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                   <ExternalLink className="h-4 w-4" />
                   <span>View Posting</span>
                 </a>
+              )}
+            </div>
+
+            {/* Job Links Section */}
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-900 dark:text-white">Job Links</h3>
+                {!editingUrls && (
+                  <button
+                    onClick={() => {
+                      setUrlDetails({
+                        url: posting?.url || '',
+                        company_url: posting?.company_url || '',
+                      })
+                      setEditingUrls(true)
+                    }}
+                    className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    {posting?.url || posting?.company_url ? 'Edit' : 'Add Links'}
+                  </button>
+                )}
+              </div>
+
+              {editingUrls ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Job Posting URL
+                    </label>
+                    <input
+                      type="url"
+                      value={urlDetails.url}
+                      onChange={(e) => setUrlDetails({ ...urlDetails, url: e.target.value })}
+                      placeholder="https://linkedin.com/jobs/..."
+                      className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Company Career Page URL
+                    </label>
+                    <input
+                      type="url"
+                      value={urlDetails.company_url}
+                      onChange={(e) => setUrlDetails({ ...urlDetails, company_url: e.target.value })}
+                      placeholder="https://company.com/careers/..."
+                      className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSaveUrls}
+                      disabled={updating}
+                      className="flex items-center gap-1 rounded-md bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+                    >
+                      <Save className="h-4 w-4" />
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingUrls(false)}
+                      className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 dark:text-gray-400 w-32">Job Posting:</span>
+                    {posting?.url ? (
+                      <a
+                        href={posting.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:underline truncate flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{posting.url}</span>
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 dark:text-gray-500">Not set</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 dark:text-gray-400 w-32">Company Page:</span>
+                    {posting?.company_url ? (
+                      <a
+                        href={posting.company_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 hover:underline truncate flex items-center gap-1"
+                      >
+                        <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{posting.company_url}</span>
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 dark:text-gray-500">Not set</span>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
 
