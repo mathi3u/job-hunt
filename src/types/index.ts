@@ -272,6 +272,7 @@ export interface PipelineItem {
   posted_date: string | null
   salary_range: string | null
   location: string | null
+  target_apply_date: string | null
   interview_stage: InterviewStage | null
   interview_outcome: ProcessOutcome | null
   interview_count: number

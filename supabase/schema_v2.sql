@@ -347,6 +347,7 @@ SELECT
   jp.posted_date,
   jp.salary_range,
   jp.location,
+  o.target_apply_date,
   ip.stage AS interview_stage,
   ip.outcome AS interview_outcome,
   (SELECT COUNT(*) FROM interviews i WHERE i.process_id = ip.id) AS interview_count,

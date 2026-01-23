@@ -10,8 +10,11 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
 } from 'recharts'
-import { Briefcase, TrendingUp, Clock, AlertCircle, Users, Filter, X } from 'lucide-react'
+import { Briefcase, TrendingUp, Clock, AlertCircle, Users, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns'
 import { usePipeline, usePipelineStats } from '@/hooks/usePipeline'
 import { STATUS_LABELS } from '@/types'
 
@@ -33,6 +36,9 @@ export function Dashboard() {
   const [companyFilter, setCompanyFilter] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [locationFilter, setLocationFilter] = useState('')
+
+  // Activity graph week offset (0 = current week, 1 = last week, etc.)
+  const [weekOffset, setWeekOffset] = useState(0)
 
   // Get unique values for filter dropdowns
   const filterOptions = useMemo(() => {
@@ -69,6 +75,48 @@ export function Dashboard() {
     setRoleFilter('')
     setLocationFilter('')
   }
+
+  // Calculate daily activity for the selected week
+  const activityData = useMemo(() => {
+    const today = startOfDay(new Date())
+    const weekStart = subDays(today, 6 + weekOffset * 7)
+    const weekEnd = subDays(today, weekOffset * 7)
+
+    const days: { date: string; fullDate: string; applications: number; interviews: number }[] = []
+
+    for (let i = 0; i < 7; i++) {
+      const day = subDays(weekEnd, 6 - i)
+      const dayStart = startOfDay(day)
+      const dayEnd = endOfDay(day)
+
+      // Count applications on this day (using target_apply_date)
+      const applications = filteredItems.filter((item) => {
+        if (!item.target_apply_date) return false
+        const applyDate = new Date(item.target_apply_date)
+        return isWithinInterval(applyDate, { start: dayStart, end: dayEnd })
+      }).length
+
+      // Count items that moved to interviewing on this day (using updated_at as proxy)
+      const interviews = filteredItems.filter((item) => {
+        if (item.status !== 'interviewing' && item.status !== 'offer' && item.status !== 'closed_won') return false
+        if (!item.updated_at) return false
+        const updateDate = new Date(item.updated_at)
+        return isWithinInterval(updateDate, { start: dayStart, end: dayEnd })
+      }).length
+
+      days.push({
+        date: format(day, 'EEE'),
+        fullDate: format(day, 'MMM d'),
+        applications,
+        interviews,
+      })
+    }
+
+    return {
+      days,
+      rangeLabel: `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`,
+    }
+  }, [filteredItems, weekOffset])
 
   const stats = usePipelineStats(filteredItems)
 
@@ -216,6 +264,100 @@ export function Dashboard() {
           icon={<Users className="h-6 w-6" />}
           color="purple"
         />
+      </div>
+
+      {/* Activity Graph */}
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Daily Activity</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{activityData.rangeLabel}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setWeekOffset(weekOffset + 1)}
+              className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+              title="Previous week"
+            >
+              <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            </button>
+            <button
+              onClick={() => setWeekOffset(0)}
+              disabled={weekOffset === 0}
+              className="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:hover:bg-gray-700 dark:text-gray-300"
+            >
+              Today
+            </button>
+            <button
+              onClick={() => setWeekOffset(Math.max(0, weekOffset - 1))}
+              disabled={weekOffset === 0}
+              className="p-2 rounded-md border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:hover:bg-gray-700"
+              title="Next week"
+            >
+              <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+            </button>
+          </div>
+        </div>
+        {activityData.days.some(d => d.applications > 0 || d.interviews > 0) ? (
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={activityData.days}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.2} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={{ stroke: '#9ca3af' }}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={{ stroke: '#9ca3af' }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+                labelFormatter={(_, payload) => payload[0]?.payload?.fullDate || ''}
+              />
+              <Line
+                type="monotone"
+                dataKey="applications"
+                name="Applications"
+                stroke="#a855f7"
+                strokeWidth={2}
+                dot={{ fill: '#a855f7', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="interviews"
+                name="Interviews"
+                stroke="#6366f1"
+                strokeWidth={2}
+                dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-[250px] items-center justify-center text-gray-500 dark:text-gray-400">
+            No activity in this period
+          </div>
+        )}
+        <div className="flex items-center justify-center gap-6 mt-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-purple-500" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Applications</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-indigo-500" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">Interviews</span>
+          </div>
+        </div>
       </div>
 
       {/* Charts */}
