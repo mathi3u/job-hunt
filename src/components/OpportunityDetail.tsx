@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import {
   X,
@@ -19,6 +19,7 @@ import {
   Linkedin,
 } from 'lucide-react'
 import { useOpportunityDetail } from '@/hooks/usePipeline'
+import { useDocuments } from '@/hooks/useDocuments'
 import { supabase } from '@/lib/supabase'
 import { CVSelector } from '@/components/CVSelector'
 import type { OpportunityStatus, InterviewType, ClosedReason } from '@/types'
@@ -70,7 +71,15 @@ interface OpportunityDetailProps {
 
 export function OpportunityDetail({ opportunityId, onClose, onUpdate }: OpportunityDetailProps) {
   const { data, loading, error, refetch } = useOpportunityDetail(opportunityId)
+  const { documents } = useDocuments('cv')
   const [updating, setUpdating] = useState(false)
+
+  // Find CV name from URL
+  const matchedCVName = useMemo(() => {
+    if (!data?.resume_url || documents.length === 0) return null
+    const matchedDoc = documents.find(doc => data.resume_url?.includes(doc.file_path))
+    return matchedDoc?.name || null
+  }, [data?.resume_url, documents])
 
   // Notes editing
   const [editingNotes, setEditingNotes] = useState(false)
@@ -551,7 +560,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                             rel="noopener noreferrer"
                             className="text-purple-700 dark:text-purple-300 underline hover:text-purple-900 dark:hover:text-purple-100"
                           >
-                            View CV
+                            {matchedCVName || 'View CV'}
                           </a>
                         ) : (
                           <span className="text-purple-900 dark:text-purple-200 font-medium">{data.resume_url}</span>

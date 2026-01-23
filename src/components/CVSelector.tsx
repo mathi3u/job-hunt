@@ -28,9 +28,22 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Auto-select default CV if no value set
+  // Try to match value to a document, or auto-select default
   useEffect(() => {
-    if (!value && documents.length > 0) {
+    if (documents.length === 0) return
+
+    // If we have a value, try to find the matching document
+    if (value && !selectedDoc) {
+      // The value is a signed URL - try to match by file_path in the URL
+      const matchedDoc = documents.find(doc => value.includes(doc.file_path))
+      if (matchedDoc) {
+        setSelectedDoc(matchedDoc)
+        return
+      }
+    }
+
+    // If no value, auto-select default CV
+    if (!value) {
       const defaultDoc = getDefaultDocument('cv')
       if (defaultDoc) {
         setSelectedDoc(defaultDoc)
@@ -39,7 +52,7 @@ export function CVSelector({ value, onChange, className = '' }: CVSelectorProps)
         })
       }
     }
-  }, [documents, value, getDefaultDocument, getSignedUrl, onChange])
+  }, [documents, value, selectedDoc, getDefaultDocument, getSignedUrl, onChange])
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
