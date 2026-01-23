@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { format } from 'date-fns'
 import {
   X,
@@ -17,6 +17,8 @@ import {
   Send,
   Search,
   Linkedin,
+  Upload,
+  FileText,
 } from 'lucide-react'
 import { useOpportunityDetail } from '@/hooks/usePipeline'
 import { useDocuments } from '@/hooks/useDocuments'
@@ -89,9 +91,12 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
   const [editingApplication, setEditingApplication] = useState(false)
   const [applicationDetails, setApplicationDetails] = useState({
     resume_url: '',
+    cover_letter_url: '',
     applied_date: '',
     source_detail: '',
   })
+  const [uploadingCoverLetter, setUploadingCoverLetter] = useState(false)
+  const coverLetterInputRef = useRef<HTMLInputElement>(null)
 
   // Add interview form
   const [showAddInterview, setShowAddInterview] = useState(false)
@@ -186,6 +191,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
       .from('opportunities')
       .update({
         resume_url: applicationDetails.resume_url || null,
+        cover_letter_url: applicationDetails.cover_letter_url || null,
         target_apply_date: applicationDetails.applied_date || null,
         source_detail: applicationDetails.source_detail || null,
       })
@@ -196,6 +202,41 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
       setEditingApplication(false)
     }
     setUpdating(false)
+  }
+
+  const handleCoverLetterUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingCoverLetter(true)
+
+    // Create a unique file path for this application's cover letter
+    const fileExt = file.name.split('.').pop()
+    const fileName = `cover-letters/${opportunityId}/${Date.now()}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('documents')
+      .upload(fileName, file)
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      setUploadingCoverLetter(false)
+      return
+    }
+
+    // Get the signed URL
+    const { data: urlData } = await supabase.storage
+      .from('documents')
+      .createSignedUrl(fileName, 60 * 60 * 24 * 365) // 1 year
+
+    if (urlData?.signedUrl) {
+      setApplicationDetails({ ...applicationDetails, cover_letter_url: urlData.signedUrl })
+    }
+
+    setUploadingCoverLetter(false)
+    if (coverLetterInputRef.current) {
+      coverLetterInputRef.current.value = ''
+    }
   }
 
   const handleSaveUrls = async () => {
@@ -598,6 +639,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         const today = new Date().toISOString().split('T')[0]
                         setApplicationDetails({
                           resume_url: data.resume_url || '',
+                          cover_letter_url: data.cover_letter_url || '',
                           applied_date: data.target_apply_date || today,
                           source_detail: data.source_detail || '',
                         })
@@ -606,7 +648,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       className="flex items-center gap-1 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
                     >
                       <Edit2 className="h-4 w-4" />
-                      {data.resume_url || data.target_apply_date || data.source_detail ? 'Edit' : 'Add Details'}
+                      {data.resume_url || data.cover_letter_url || data.target_apply_date || data.source_detail ? 'Edit' : 'Add Details'}
                     </button>
                   )}
                 </div>
@@ -645,6 +687,50 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         onChange={(url) => setApplicationDetails({ ...applicationDetails, resume_url: url })}
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
+                        Cover Letter (Optional)
+                      </label>
+                      <input
+                        ref={coverLetterInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleCoverLetterUpload}
+                        className="hidden"
+                      />
+                      <div className="flex items-center gap-2">
+                        {applicationDetails.cover_letter_url ? (
+                          <div className="flex-1 flex items-center gap-2 rounded-md border border-purple-300 bg-white px-3 py-2 text-sm dark:border-purple-700 dark:bg-gray-700 dark:text-white">
+                            <FileText className="h-4 w-4 text-purple-500" />
+                            <a
+                              href={applicationDetails.cover_letter_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-600 dark:text-purple-400 hover:underline truncate"
+                            >
+                              Cover Letter Uploaded
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => setApplicationDetails({ ...applicationDetails, cover_letter_url: '' })}
+                              className="ml-auto text-gray-400 hover:text-red-500"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => coverLetterInputRef.current?.click()}
+                            disabled={uploadingCoverLetter}
+                            className="flex items-center gap-2 rounded-md border border-purple-300 bg-white px-3 py-2 text-sm text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:bg-gray-700 dark:text-purple-300 dark:hover:bg-gray-600"
+                          >
+                            <Upload className="h-4 w-4" />
+                            {uploadingCoverLetter ? 'Uploading...' : 'Upload Cover Letter'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
                     <div className="flex gap-2">
                       <button
                         onClick={handleSaveApplicationDetails}
@@ -663,7 +749,7 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     </div>
                   </div>
                 ) : (
-                  <div className="grid gap-2 sm:grid-cols-3 text-sm">
+                  <div className="grid gap-2 sm:grid-cols-2 text-sm">
                     <div>
                       <span className="text-purple-600 dark:text-purple-400">Applied:</span>{' '}
                       <span className="text-purple-900 dark:text-purple-200 font-medium">
@@ -693,6 +779,21 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                         ) : (
                           <span className="text-purple-900 dark:text-purple-200 font-medium">{data.resume_url}</span>
                         )
+                      ) : (
+                        <span className="text-purple-900 dark:text-purple-200 font-medium">Not set</span>
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-purple-600 dark:text-purple-400">Cover Letter:</span>{' '}
+                      {data.cover_letter_url ? (
+                        <a
+                          href={data.cover_letter_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-700 dark:text-purple-300 underline hover:text-purple-900 dark:hover:text-purple-100"
+                        >
+                          View Cover Letter
+                        </a>
                       ) : (
                         <span className="text-purple-900 dark:text-purple-200 font-medium">Not set</span>
                       )}
