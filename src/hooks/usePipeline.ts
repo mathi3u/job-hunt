@@ -43,6 +43,27 @@ export function usePipeline() {
     await fetchPipeline()
   }
 
+  const applyToOpportunity = async (
+    id: string,
+    applicationDetails: {
+      resume_url?: string
+      cover_letter_url?: string
+      source?: string
+      source_detail?: string
+    }
+  ) => {
+    const { error } = await supabase
+      .from('opportunities')
+      .update({
+        status: 'applied' as OpportunityStatus,
+        ...applicationDetails,
+      })
+      .eq('id', id)
+
+    if (error) throw error
+    await fetchPipeline()
+  }
+
   const updateOpportunityPriority = async (id: string, priority: number) => {
     const { error } = await supabase
       .from('opportunities')
@@ -71,6 +92,7 @@ export function usePipeline() {
     updateOpportunityStatus,
     updateOpportunityPriority,
     deleteOpportunity,
+    applyToOpportunity,
   }
 }
 

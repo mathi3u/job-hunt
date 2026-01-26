@@ -6,7 +6,7 @@
 
 ### Ideas
 
-- [ ] **"Apply" action button** - Single action that:
+- [x] **"Apply" action button** - Single action that:
   - Changes status to "applied"
   - Opens inline form to fill application details (date, method, CV, cover letter)
   - No page refresh needed

@@ -5,16 +5,18 @@ import { usePipeline } from '@/hooks/usePipeline'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { OpportunityList } from '@/components/OpportunityList'
 import { OpportunityDetail } from '@/components/OpportunityDetail'
+import { ApplyModal } from '@/components/ApplyModal'
 import type { PipelineItem, OpportunityStatus, ClosedReason } from '@/types'
 import { CLOSED_REASON_LABELS } from '@/types'
 
 export function Pipeline() {
   usePageTitle('Pipeline')
-  const { items, loading, error, refetch, deleteOpportunity, updateOpportunityStatus } = usePipeline()
+  const { items, loading, error, refetch, deleteOpportunity, updateOpportunityStatus, applyToOpportunity } = usePipeline()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [closingId, setClosingId] = useState<string | null>(null)
   const [closedReason, setClosedReason] = useState<ClosedReason>('rejected')
+  const [applyingItem, setApplyingItem] = useState<PipelineItem | null>(null)
 
   // Auto-open opportunity from URL query param (e.g., /pipeline?open=abc123)
   useEffect(() => {
@@ -41,6 +43,15 @@ export function Pipeline() {
   }
 
   const handleStatusChange = async (id: string, status: OpportunityStatus) => {
+    // Intercept 'applied' status to open the ApplyModal instead
+    if (status === 'applied') {
+      const item = items.find((i) => i.opportunity_id === id)
+      if (item) {
+        setApplyingItem(item)
+        return
+      }
+    }
+
     try {
       await updateOpportunityStatus(id, status)
     } catch (err) {
@@ -112,6 +123,17 @@ export function Pipeline() {
           opportunityId={selectedId}
           onClose={handleCloseDetail}
           onUpdate={refetch}
+        />
+      )}
+
+      {/* Apply Modal */}
+      {applyingItem && (
+        <ApplyModal
+          opportunityId={applyingItem.opportunity_id}
+          companyName={applyingItem.company_name}
+          roleName={applyingItem.posting_role || applyingItem.title}
+          onClose={() => setApplyingItem(null)}
+          onApply={applyToOpportunity}
         />
       )}
 
