@@ -8,6 +8,8 @@ interface OpportunityListProps {
   items: PipelineItem[]
   onView: (item: PipelineItem) => void
   onDelete: (id: string) => void
+  onStatusChange?: (id: string, status: OpportunityStatus) => void
+  onClose?: (id: string) => void
 }
 
 type StatusFilter = OpportunityStatus | 'all' | 'active'
@@ -34,7 +36,7 @@ const activeStatuses: OpportunityStatus[] = [
   'offer',
 ]
 
-export function OpportunityList({ items, onView, onDelete }: OpportunityListProps) {
+export function OpportunityList({ items, onView, onDelete, onStatusChange, onClose }: OpportunityListProps) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
 
@@ -103,6 +105,8 @@ export function OpportunityList({ items, onView, onDelete }: OpportunityListProp
               item={item}
               onView={onView}
               onDelete={onDelete}
+              onStatusChange={onStatusChange}
+              onClose={onClose}
             />
           ))}
         </div>

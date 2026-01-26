@@ -12,8 +12,8 @@ import {
   Globe,
   Mail,
 } from 'lucide-react'
-import type { PipelineItem, OpportunityStatus, OpportunitySource } from '@/types'
-import { STATUS_LABELS, STATUS_COLORS, SOURCE_LABELS } from '@/types'
+import type { PipelineItem, OpportunityStatus, OpportunitySource, NextAction } from '@/types'
+import { STATUS_LABELS, STATUS_COLORS, SOURCE_LABELS, NEXT_ACTIONS } from '@/types'
 
 const SOURCE_ICONS: Record<OpportunitySource, typeof Briefcase> = {
   job_board: Briefcase,
@@ -29,6 +29,8 @@ interface OpportunityCardProps {
   item: PipelineItem
   onView: (item: PipelineItem) => void
   onDelete: (id: string) => void
+  onStatusChange?: (id: string, status: OpportunityStatus) => void
+  onClose?: (id: string) => void
 }
 
 function StatusBadge({ status }: { status: OpportunityStatus }) {
@@ -55,11 +57,21 @@ function PriorityIndicator({ priority }: { priority: number }) {
   )
 }
 
-export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps) {
+export function OpportunityCard({ item, onView, onDelete, onStatusChange, onClose }: OpportunityCardProps) {
   const role = item.posting_role || item.title || 'Untitled Role'
   const company = item.company_name || 'Unknown Company'
   const SourceIcon = item.source ? SOURCE_ICONS[item.source] : Briefcase
   const lastActionTime = formatDistanceToNow(new Date(item.updated_at), { addSuffix: true })
+  const nextActions = NEXT_ACTIONS[item.status] || []
+
+  const handleAction = (e: React.MouseEvent, action: NextAction) => {
+    e.stopPropagation()
+    if (action.status && onStatusChange) {
+      onStatusChange(item.opportunity_id, action.status)
+    } else if (action.action === 'close' && onClose) {
+      onClose(item.opportunity_id)
+    }
+  }
 
   return (
     <div
@@ -139,6 +151,27 @@ export function OpportunityCard({ item, onView, onDelete }: OpportunityCardProps
           Updated {lastActionTime}
         </div>
       </div>
+
+      {/* Quick action buttons */}
+      {nextActions.length > 0 && (onStatusChange || onClose) && (
+        <div className="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
+          {nextActions.map((action, i) => (
+            <button
+              key={i}
+              onClick={(e) => handleAction(e, action)}
+              className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                action.variant === 'primary'
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : action.variant === 'danger'
+                  ? 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

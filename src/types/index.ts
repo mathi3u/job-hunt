@@ -343,6 +343,43 @@ export const STATUS_COLORS: Record<OpportunityStatus, string> = {
   closed_lost: 'bg-red-100 text-red-800',
 }
 
+// Contextual next actions based on current status
+export interface NextAction {
+  label: string
+  status?: OpportunityStatus  // Target status (if it's a status change)
+  action?: 'close' | 'schedule_interview' | 'add_interview'  // Special actions
+  variant: 'primary' | 'secondary' | 'danger'
+}
+
+export const NEXT_ACTIONS: Record<OpportunityStatus, NextAction[]> = {
+  identified: [
+    { label: 'Start Research', status: 'researching', variant: 'primary' },
+    { label: 'Close', action: 'close', variant: 'danger' },
+  ],
+  researching: [
+    { label: 'Prepare App', status: 'preparing', variant: 'primary' },
+    { label: 'Close', action: 'close', variant: 'danger' },
+  ],
+  preparing: [
+    { label: 'Applied', status: 'applied', variant: 'primary' },
+    { label: 'Close', action: 'close', variant: 'danger' },
+  ],
+  applied: [
+    { label: 'Interviewing', status: 'interviewing', variant: 'primary' },
+    { label: 'Ghosted', action: 'close', variant: 'danger' },
+  ],
+  interviewing: [
+    { label: 'Got Offer', status: 'offer', variant: 'primary' },
+    { label: 'Rejected', action: 'close', variant: 'danger' },
+  ],
+  offer: [
+    { label: 'Accept', status: 'closed_won', variant: 'primary' },
+    { label: 'Decline', action: 'close', variant: 'danger' },
+  ],
+  closed_won: [],
+  closed_lost: [],
+}
+
 export const CLOSED_REASON_LABELS: Record<ClosedReason, string> = {
   rejected: 'Rejected by company',
   withdrew: 'I withdrew',

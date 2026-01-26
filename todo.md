@@ -11,13 +11,13 @@
   - Opens inline form to fill application details (date, method, CV, cover letter)
   - No page refresh needed
 
-- [ ] **Contextual next actions based on current stage**
+- [x] **Contextual next actions based on current stage**
   - Pre-apply: "Apply" button prominent
   - Applied: "Schedule Interview" / "Mark Declined" / "Mark Ghosted"
   - Interviewing: "Add Interview" / "Mark Offer" / "Mark Rejected"
   - Offer: "Accept" / "Decline"
 
-- [ ] **Quick decline/close flow** - Single action that:
+- [x] **Quick decline/close flow** - Single action that:
   - Captures reason (rejected, ghosted, withdrew)
   - Optional: paste rejection email
   - Optional: add notes
