@@ -438,6 +438,74 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
             </button>
           </div>
 
+          {/* Contextual Action Bar - Right after header */}
+          {NEXT_ACTIONS[data.status]?.length > 0 && (
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 px-6 py-3 bg-gray-50 dark:bg-gray-900">
+              {NEXT_ACTIONS[data.status].map((action, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    if (action.status) {
+                      handleStatusChange(action.status)
+                    } else if (action.action === 'close') {
+                      setShowClosedReasonPicker(true)
+                    }
+                  }}
+                  disabled={updating}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
+                    action.variant === 'primary'
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : action.variant === 'danger'
+                      ? 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {action.label}
+                </button>
+              ))}
+
+              {/* Quick links for pre-apply stages */}
+              {['identified', 'researching', 'preparing'].includes(data.status) && (
+                <>
+                  <div className="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1" />
+                  {(posting?.company_url || posting?.url) && (
+                    <a
+                      href={(posting.company_url || posting.url) ?? ''}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 dark:text-primary-400 whitespace-nowrap"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Open Posting
+                    </a>
+                  )}
+                  {company && (
+                    <a
+                      href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap"
+                    >
+                      <Linkedin className="h-3.5 w-3.5" />
+                      Contacts
+                    </a>
+                  )}
+                  {company && (
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 whitespace-nowrap"
+                    >
+                      <Search className="h-3.5 w-3.5" />
+                      Research
+                    </a>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
           {/* Content */}
           <div className="space-y-6 p-6">
             {/* Quick Info */}
@@ -574,75 +642,6 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                 </div>
               )}
             </div>
-
-            {/* Contextual Action Bar */}
-            {NEXT_ACTIONS[data.status]?.length > 0 && (
-              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900 p-4">
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Next:</span>
-                {NEXT_ACTIONS[data.status].map((action, i) => (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      if (action.status) {
-                        handleStatusChange(action.status)
-                      } else if (action.action === 'close') {
-                        setShowClosedReasonPicker(true)
-                      }
-                    }}
-                    disabled={updating}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
-                      action.variant === 'primary'
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : action.variant === 'danger'
-                        ? 'bg-gray-200 text-gray-700 hover:bg-red-100 hover:text-red-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-red-900/50 dark:hover:text-red-400'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    {action.label}
-                  </button>
-                ))}
-
-                {/* Quick links for pre-apply stages */}
-                {['identified', 'researching', 'preparing'].includes(data.status) && (
-                  <>
-                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-                    {(posting?.company_url || posting?.url) && (
-                      <a
-                        href={(posting.company_url || posting.url) ?? ''}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        Open Posting
-                      </a>
-                    )}
-                    {company && (
-                      <a
-                        href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                        Find Contacts
-                      </a>
-                    )}
-                    {company && (
-                      <a
-                        href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Search className="h-4 w-4" />
-                        Research
-                      </a>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
 
             {/* TL;DR */}
             {posting?.tldr && (
