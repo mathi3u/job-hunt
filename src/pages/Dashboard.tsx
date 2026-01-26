@@ -16,6 +16,7 @@ import {
 import { Briefcase, TrendingUp, Clock, AlertCircle, Users, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format, subDays, startOfDay, endOfDay, isWithinInterval } from 'date-fns'
 import { usePipeline, usePipelineStats } from '@/hooks/usePipeline'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { STATUS_LABELS } from '@/types'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -30,6 +31,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export function Dashboard() {
+  usePageTitle('Dashboard')
   const { items, loading, error } = usePipeline()
 
   // Filter state

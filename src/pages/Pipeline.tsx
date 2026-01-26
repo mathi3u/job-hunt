@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { RefreshCw } from 'lucide-react'
 import { usePipeline } from '@/hooks/usePipeline'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { OpportunityList } from '@/components/OpportunityList'
 import { OpportunityDetail } from '@/components/OpportunityDetail'
 import type { PipelineItem } from '@/types'
 
 export function Pipeline() {
+  usePageTitle('Pipeline')
   const { items, loading, error, refetch, deleteOpportunity } = usePipeline()
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(null)

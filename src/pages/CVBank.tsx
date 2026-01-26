@@ -12,6 +12,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { useDocuments } from '@/hooks/useDocuments'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import type { CVDocument, DocLanguage } from '@/types'
 import { DOC_LANGUAGE_LABELS } from '@/types'
 
@@ -23,6 +24,7 @@ function formatFileSize(bytes: number | null): string {
 }
 
 export function CVBank() {
+  usePageTitle('CV Bank')
   const { documents, loading, error, uploadDocument, updateDocument, deleteDocument, setDefaultDocument, getSignedUrl } = useDocuments('cv')
 
   // View document handler

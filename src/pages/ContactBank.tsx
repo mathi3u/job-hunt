@@ -16,6 +16,7 @@ import {
   FileSpreadsheet,
 } from 'lucide-react'
 import { useContacts, type ContactWithCompany } from '@/hooks/useContacts'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { supabase } from '@/lib/supabase'
 import type { ContactRelationship, ContactType, Company } from '@/types'
 import { RELATIONSHIP_LABELS, RELATIONSHIP_COLORS, CONTACT_TYPE_LABELS } from '@/types'
@@ -65,6 +66,7 @@ function mapContactType(typeStr: string | undefined): ContactType | undefined {
 }
 
 export function ContactBank() {
+  usePageTitle('Contacts')
   const { contacts, loading, error, createContact, updateContact, deleteContact, importContacts } = useContacts()
   const [companies, setCompanies] = useState<Company[]>([])
   const [searchQuery, setSearchQuery] = useState('')

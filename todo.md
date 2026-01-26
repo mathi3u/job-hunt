@@ -1,34 +1,34 @@
-# Job Tracker - TODO
+# Job Tracker - Future Improvements
 
-## Pending
-- [ ] Create import script to migrate Google Sheet data to Supabase
-- [ ] Import existing job applications from spreadsheet
+## Pipeline UX/UI Overhaul
 
-## Future Features
+**Goal:** Make the workflow action-oriented rather than status-oriented. Reduce clicks and anticipate user intent.
 
-### 1. Company Watchlist
-A dedicated section for companies you're interested in, even before specific job postings:
-- [ ] Companies page to browse/add target companies
-- [ ] Crawl company news and updates
-- [ ] Notifications for new job postings at watched companies
-- [ ] Track new contacts/connections at those companies
-- [ ] Company research notes and culture fit scoring
+### Ideas
 
-### 2. Contacts & Networking Graph
-Expand contact management into a full networking system:
-- [ ] Import contacts from Google Sheets
-- [ ] Build relationship graph: contacts ↔ companies ↔ opportunities
-- [ ] Track conversations, coffee chats, informational interviews
-- [ ] Capture learnings and advice from each contact
-- [ ] Follow-up reminders and relationship nurturing
-- [ ] "Warm intro" paths - find connections to target companies
-- [ ] Consider renaming app (Career Tracker? Network Hub?)
+- [ ] **"Apply" action button** - Single action that:
+  - Changes status to "applied"
+  - Opens inline form to fill application details (date, method, CV, cover letter)
+  - No page refresh needed
 
-## Completed
-- [x] Set up React + Vite + TypeScript project
-- [x] Create Supabase schema matching Google Sheet structure
-- [x] Build UI components (Dashboard, Jobs list, Form)
-- [x] CV Bank for managing resumes
-- [x] Opportunity status workflow with closed reasons
-- [x] Chrome extension with duplicate detection
-- [x] Company URL field for direct application links
+- [ ] **Contextual next actions based on current stage**
+  - Pre-apply: "Apply" button prominent
+  - Applied: "Schedule Interview" / "Mark Declined" / "Mark Ghosted"
+  - Interviewing: "Add Interview" / "Mark Offer" / "Mark Rejected"
+  - Offer: "Accept" / "Decline"
+
+- [ ] **Quick decline/close flow** - Single action that:
+  - Captures reason (rejected, ghosted, withdrew)
+  - Optional: paste rejection email
+  - Optional: add notes
+  - Closes the opportunity in one step
+
+- [ ] **Reduce modal friction**
+  - Inline editing where possible
+  - Auto-save on blur
+  - Keyboard shortcuts (e.g., `a` for apply, `i` for add interview)
+
+### Current Pain Points
+- Have to change status first, then refresh, then fill in fields
+- Too many clicks to go from stage to stage
+- Actions are buried in dropdowns instead of being prominent

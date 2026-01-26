@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import type { Company, PipelineItem } from '@/types'
 import { STATUS_LABELS, STATUS_COLORS } from '@/types'
 
@@ -24,6 +25,7 @@ interface CompanyWithCount extends Company {
 }
 
 export function Companies() {
+  usePageTitle('Companies')
   const navigate = useNavigate()
   const [companies, setCompanies] = useState<CompanyWithCount[]>([])
   const [loading, setLoading] = useState(true)
