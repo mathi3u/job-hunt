@@ -14,7 +14,6 @@ import {
   Plus,
   Save,
   Edit2,
-  Send,
   Search,
   Linkedin,
   Upload,
@@ -24,12 +23,14 @@ import { useOpportunityDetail } from '@/hooks/usePipeline'
 import { useDocuments } from '@/hooks/useDocuments'
 import { supabase } from '@/lib/supabase'
 import { CVSelector } from '@/components/CVSelector'
+import { ApplyModal } from '@/components/ApplyModal'
 import type { OpportunityStatus, InterviewType, ClosedReason } from '@/types'
 import {
   STATUS_LABELS,
   STATUS_COLORS,
   INTERVIEW_TYPE_LABELS,
   CLOSED_REASON_LABELS,
+  NEXT_ACTIONS,
 } from '@/types'
 
 const ALL_STATUSES: OpportunityStatus[] = [
@@ -110,6 +111,9 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
   // Closed reason picker
   const [showClosedReasonPicker, setShowClosedReasonPicker] = useState(false)
 
+  // Apply modal
+  const [showApplyModal, setShowApplyModal] = useState(false)
+
   // Job posting URLs editing
   const [editingUrls, setEditingUrls] = useState(false)
   const [urlDetails, setUrlDetails] = useState({
@@ -124,19 +128,19 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
       return
     }
 
+    // If changing to applied, show apply modal first
+    if (newStatus === 'applied') {
+      setShowApplyModal(true)
+      return
+    }
+
     setUpdating(true)
 
     // Set closed_at for closed_won, clear it for other statuses
-    // Set target_apply_date to today when marking as applied
     const updates: Record<string, unknown> = {
       status: newStatus,
       closed_reason: null,
       closed_at: newStatus === 'closed_won' ? new Date().toISOString() : null,
-    }
-
-    // Auto-fill application date when marking as applied
-    if (newStatus === 'applied') {
-      updates.target_apply_date = new Date().toISOString().split('T')[0]
     }
 
     const { error } = await supabase
@@ -147,6 +151,33 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
     if (!error) {
       await refetch()
       onUpdate()
+    }
+    setUpdating(false)
+  }
+
+  const handleApplyWithDetails = async (
+    _id: string,
+    details: {
+      resume_url?: string
+      cover_letter_url?: string
+      source?: string
+      source_detail?: string
+    }
+  ) => {
+    setUpdating(true)
+    const { error } = await supabase
+      .from('opportunities')
+      .update({
+        status: 'applied' as OpportunityStatus,
+        target_apply_date: new Date().toISOString().split('T')[0],
+        ...details,
+      })
+      .eq('id', opportunityId)
+
+    if (!error) {
+      await refetch()
+      onUpdate()
+      setShowApplyModal(false)
     }
     setUpdating(false)
   }
@@ -544,79 +575,72 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
               )}
             </div>
 
-            {/* Next Actions - Show for early stages */}
-            {['identified', 'researching', 'preparing'].includes(data.status) && (
-              <div className="rounded-lg border-2 border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/30 p-4">
-                <h3 className="mb-3 font-semibold text-primary-900">Next Actions</h3>
-                <div className="flex flex-wrap gap-2">
-                  {/* Apply Button */}
-                  {(posting?.company_url || posting?.url) && (
-                    <a
-                      href={(posting.company_url || posting.url) ?? ''}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-                    >
-                      <Send className="h-4 w-4" />
-                      Apply {posting.company_url ? '(Company Site)' : '(Portal)'}
-                    </a>
-                  )}
-
-                  {/* Find Contacts Button */}
-                  {company && (
-                    <a
-                      href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
-                    >
-                      <Linkedin className="h-4 w-4" />
-                      Find Contacts
-                    </a>
-                  )}
-
-                  {/* Research Button */}
-                  {company && (
-                    <a
-                      href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50"
-                    >
-                      <Search className="h-4 w-4" />
-                      Research Company
-                    </a>
-                  )}
-                </div>
-
-                {/* Quick status update buttons */}
-                <div className="mt-3 flex items-center gap-2 border-t border-primary-200 pt-3">
-                  <span className="text-xs text-primary-700">Quick update:</span>
-                  {data.status !== 'researching' && (
-                    <button
-                      onClick={() => handleStatusChange('researching')}
-                      className="rounded bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-200"
-                    >
-                      Researching
-                    </button>
-                  )}
-                  {data.status !== 'preparing' && (
-                    <button
-                      onClick={() => handleStatusChange('preparing')}
-                      className="rounded bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-200"
-                    >
-                      Preparing
-                    </button>
-                  )}
+            {/* Contextual Action Bar */}
+            {NEXT_ACTIONS[data.status]?.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900 p-4">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Next:</span>
+                {NEXT_ACTIONS[data.status].map((action, i) => (
                   <button
-                    onClick={() => handleStatusChange('applied')}
+                    key={i}
+                    onClick={() => {
+                      if (action.status) {
+                        handleStatusChange(action.status)
+                      } else if (action.action === 'close') {
+                        setShowClosedReasonPicker(true)
+                      }
+                    }}
                     disabled={updating}
-                    className="flex items-center gap-1.5 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+                      action.variant === 'primary'
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : action.variant === 'danger'
+                        ? 'bg-gray-200 text-gray-700 hover:bg-red-100 hover:text-red-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-red-900/50 dark:hover:text-red-400'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300'
+                    }`}
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Applied
+                    {action.label}
                   </button>
-                </div>
+                ))}
+
+                {/* Quick links for pre-apply stages */}
+                {['identified', 'researching', 'preparing'].includes(data.status) && (
+                  <>
+                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+                    {(posting?.company_url || posting?.url) && (
+                      <a
+                        href={(posting.company_url || posting.url) ?? ''}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Open Posting
+                      </a>
+                    )}
+                    {company && (
+                      <a
+                        href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(company.name)}&origin=GLOBAL_SEARCH_HEADER`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                        Find Contacts
+                      </a>
+                    )}
+                    {company && (
+                      <a
+                        href={`https://www.google.com/search?q=${encodeURIComponent(company.name + ' company culture reviews')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        <Search className="h-4 w-4" />
+                        Research
+                      </a>
+                    )}
+                  </>
+                )}
               </div>
             )}
 
@@ -1106,6 +1130,17 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
               </button>
             </div>
           </div>
+        )}
+
+        {/* Apply Modal */}
+        {showApplyModal && (
+          <ApplyModal
+            opportunityId={opportunityId}
+            companyName={company?.name}
+            roleName={posting?.role || data.title}
+            onClose={() => setShowApplyModal(false)}
+            onApply={handleApplyWithDetails}
+          />
         )}
       </div>
     </div>
