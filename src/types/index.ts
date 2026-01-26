@@ -256,6 +256,77 @@ export interface CVDocument {
 }
 
 // ============================================================================
+// JOB SEARCH TRACKING
+// ============================================================================
+
+export type PortalType = 'job_board' | 'company_careers' | 'aggregator'
+export type SearchResultStatus = 'new' | 'reviewed' | 'added' | 'dismissed'
+export type SearchCheckStatus = 'success' | 'failed' | 'pending'
+export type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead' | 'executive'
+
+export interface JobPortal {
+  id: string
+  name: string
+  base_url: string
+  search_url_template: string | null
+  portal_type: PortalType
+  requires_auth: boolean
+  supports_rss: boolean
+  notes: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface SavedSearch {
+  id: string
+  name: string
+  keywords: string[] | null
+  excluded_keywords: string[] | null
+  job_titles: string[] | null
+  companies: string[] | null
+  locations: string[] | null
+  remote_only: boolean
+  experience_levels: ExperienceLevel[] | null
+  portal_id: string | null
+  custom_url: string | null
+  check_frequency_hours: number
+  last_checked_at: string | null
+  last_check_status: SearchCheckStatus | null
+  last_check_error: string | null
+  total_results_found: number
+  new_results_last_check: number
+  is_active: boolean
+  priority: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SavedSearchWithPortal extends SavedSearch {
+  portal: JobPortal | null
+}
+
+export interface SearchResult {
+  id: string
+  search_id: string
+  external_id: string | null
+  url: string
+  title: string
+  company_name: string | null
+  location: string | null
+  salary_range: string | null
+  posted_date: string | null
+  raw_data: Record<string, unknown> | null
+  status: SearchResultStatus
+  opportunity_id: string | null
+  first_seen_at: string
+  last_seen_at: string
+  created_at: string
+  updated_at: string
+}
+
+// ============================================================================
 // JOINED/VIEW TYPES
 // ============================================================================
 
@@ -467,5 +538,26 @@ export const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
   in_person: 'In Person',
   event: 'Event/Conference',
   referral_intro: 'Referral Intro',
+}
+
+export const PORTAL_TYPE_LABELS: Record<PortalType, string> = {
+  job_board: 'Job Board',
+  company_careers: 'Company Careers',
+  aggregator: 'Aggregator',
+}
+
+export const SEARCH_RESULT_STATUS_LABELS: Record<SearchResultStatus, string> = {
+  new: 'New',
+  reviewed: 'Reviewed',
+  added: 'Added to Pipeline',
+  dismissed: 'Dismissed',
+}
+
+export const EXPERIENCE_LEVEL_LABELS: Record<ExperienceLevel, string> = {
+  entry: 'Entry Level',
+  mid: 'Mid Level',
+  senior: 'Senior',
+  lead: 'Lead / Principal',
+  executive: 'Executive',
 }
 

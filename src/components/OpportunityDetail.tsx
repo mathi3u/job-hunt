@@ -24,6 +24,7 @@ import { useDocuments } from '@/hooks/useDocuments'
 import { supabase } from '@/lib/supabase'
 import { CVSelector } from '@/components/CVSelector'
 import { ApplyModal } from '@/components/ApplyModal'
+import { LinkedInContactPanel } from '@/components/LinkedInContactPanel'
 import type { OpportunityStatus, InterviewType, ClosedReason } from '@/types'
 import {
   STATUS_LABELS,
@@ -642,6 +643,15 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                 </div>
               )}
             </div>
+
+            {/* LinkedIn Contacts */}
+            {company && (
+              <LinkedInContactPanel
+                companyId={company.id}
+                companyName={company.name}
+                roleName={posting?.role || data.title || undefined}
+              />
+            )}
 
             {/* TL;DR */}
             {posting?.tldr && (
