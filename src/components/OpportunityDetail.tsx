@@ -75,15 +75,24 @@ interface OpportunityDetailProps {
 
 export function OpportunityDetail({ opportunityId, onClose, onUpdate }: OpportunityDetailProps) {
   const { data, loading, error, refetch } = useOpportunityDetail(opportunityId)
-  const { documents } = useDocuments('cv')
+  const { documents, getSignedUrl } = useDocuments('cv')
   const [updating, setUpdating] = useState(false)
 
-  // Find CV name from URL
-  const matchedCVName = useMemo(() => {
+  // Find matched CV document from stored URL
+  const matchedCV = useMemo(() => {
     if (!data?.resume_url || documents.length === 0) return null
-    const matchedDoc = documents.find(doc => data.resume_url?.includes(doc.file_path))
-    return matchedDoc?.name || null
+    return documents.find(doc => data.resume_url?.includes(doc.file_path)) || null
   }, [data?.resume_url, documents])
+
+  const handleViewCV = async () => {
+    if (!matchedCV) {
+      // No matching document — open the raw URL as fallback
+      if (data?.resume_url) window.open(data.resume_url, '_blank')
+      return
+    }
+    const url = await getSignedUrl(matchedCV.file_path)
+    if (url) window.open(url, '_blank')
+  }
 
   // Notes editing
   const [editingNotes, setEditingNotes] = useState(false)
@@ -801,14 +810,12 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                       <span className="text-purple-600 dark:text-purple-400">CV:</span>{' '}
                       {data.resume_url ? (
                         data.resume_url.startsWith('http') ? (
-                          <a
-                            href={data.resume_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={handleViewCV}
                             className="text-purple-700 dark:text-purple-300 underline hover:text-purple-900 dark:hover:text-purple-100"
                           >
-                            {matchedCVName || 'View CV'}
-                          </a>
+                            {matchedCV?.name || 'View CV'}
+                          </button>
                         ) : (
                           <span className="text-purple-900 dark:text-purple-200 font-medium">{data.resume_url}</span>
                         )
@@ -819,14 +826,26 @@ export function OpportunityDetail({ opportunityId, onClose, onUpdate }: Opportun
                     <div>
                       <span className="text-purple-600 dark:text-purple-400">Cover Letter:</span>{' '}
                       {data.cover_letter_url ? (
-                        <a
-                          href={data.cover_letter_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={async () => {
+                            // Extract file path from stored signed URL and generate fresh one
+                            const match = data.cover_letter_url?.match(/\/documents\/(.+?)\?/)
+                            if (match) {
+                              const { data: urlData } = await supabase.storage
+                                .from('documents')
+                                .createSignedUrl(match[1], 3600)
+                              if (urlData?.signedUrl) {
+                                window.open(urlData.signedUrl, '_blank')
+                                return
+                              }
+                            }
+                            // Fallback: try raw URL
+                            if (data.cover_letter_url) window.open(data.cover_letter_url, '_blank')
+                          }}
                           className="text-purple-700 dark:text-purple-300 underline hover:text-purple-900 dark:hover:text-purple-100"
                         >
                           View Cover Letter
-                        </a>
+                        </button>
                       ) : (
                         <span className="text-purple-900 dark:text-purple-200 font-medium">Not set</span>
                       )}
