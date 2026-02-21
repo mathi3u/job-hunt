@@ -35,22 +35,31 @@ Normalized relational model in `supabase/schema_v2.sql`:
 - **interview_processes** - Interview pipeline for an opportunity
 - **interviews** - Individual interview sessions
 - **communications** - Email/call/message tracking
+- **documents** - Uploaded CVs, cover letters (linked to Supabase Storage)
 
 ### Key Files
 - `vite.config.ts` - Dev server + API endpoints (`/api/extract`, `/api/jobs`)
 - `src/lib/supabase.ts` - Supabase client initialization
 - `src/hooks/usePipeline.ts` - Pipeline CRUD operations and stats
+- `src/hooks/useDocuments.ts` - Document/CV CRUD, upload, signed URL generation
 - `src/hooks/useJobs.ts` - Legacy hook (for old jobs table)
 - `src/types/index.ts` - TypeScript types, enums, and UI helpers
 
 ### Component Structure
-- **Pages** (`src/pages/`): Dashboard (analytics), Pipeline (new schema), Jobs (legacy)
-- **Components** (`src/components/`): Layout, OpportunityList, OpportunityCard, OpportunityDetail
+- **Pages** (`src/pages/`): Dashboard, Pipeline, CVBank, Jobs (legacy)
+- **Components** (`src/components/`): Layout, OpportunityList, OpportunityCard, OpportunityDetail, CVSelector, ApplyModal
 
 ### Views
 - `pipeline_overview` - Main view for listing opportunities with joined data
 - `upcoming_interviews` - Interviews scheduled in the future
 - `follow_ups_needed` - Communications requiring response
+
+### Document Management
+- **Storage bucket**: `documents` (Supabase Storage)
+- **DB table**: `documents` (name, file_path, doc_type, language, is_default)
+- **Types**: `DocType` (cv, cover_letter, other), `DocLanguage` (en, fr)
+- **CVSelector** component used in ApplyModal and OpportunityDetail for picking CVs
+- **Signed URLs**: Always generate fresh signed URLs on click (1hr expiry) — never store/link to signed URLs directly, they expire
 
 ## Configuration
 
