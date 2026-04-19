@@ -11,81 +11,36 @@
 
 -- ============================================================================
 -- ENUMS
+-- PostgreSQL does not support CREATE TYPE IF NOT EXISTS — use DO blocks.
 -- ============================================================================
 
--- Interview process stages
-CREATE TYPE IF NOT EXISTS interview_stage AS ENUM (
-  'applied',
-  'screening',
-  'phone_interview',
-  'technical',
-  'onsite',
-  'final_round',
-  'reference_check',
-  'offer',
-  'negotiation'
-);
+DO $$ BEGIN CREATE TYPE interview_stage AS ENUM (
+  'applied','screening','phone_interview','technical','onsite',
+  'final_round','reference_check','offer','negotiation'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Interview process outcomes
-CREATE TYPE IF NOT EXISTS process_outcome AS ENUM (
-  'in_progress',
-  'advanced',
-  'offer_extended',
-  'offer_accepted',
-  'offer_declined',
-  'rejected',
-  'withdrawn',
-  'ghosted',
-  'on_hold'
-);
+DO $$ BEGIN CREATE TYPE process_outcome AS ENUM (
+  'in_progress','advanced','offer_extended','offer_accepted','offer_declined',
+  'rejected','withdrawn','ghosted','on_hold'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Individual interview types
-CREATE TYPE IF NOT EXISTS interview_type AS ENUM (
-  'recruiter_screen',
-  'hiring_manager',
-  'technical',
-  'behavioral',
-  'system_design',
-  'case_study',
-  'panel',
-  'presentation',
-  'culture_fit',
-  'executive'
-);
+DO $$ BEGIN CREATE TYPE interview_type AS ENUM (
+  'recruiter_screen','hiring_manager','technical','behavioral','system_design',
+  'case_study','panel','presentation','culture_fit','executive'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Communication types
-CREATE TYPE IF NOT EXISTS comm_type AS ENUM (
-  'email_sent',
-  'email_received',
-  'call',
-  'linkedin_message',
-  'referral_intro',
-  'follow_up'
-);
+DO $$ BEGIN CREATE TYPE comm_type AS ENUM (
+  'email_sent','email_received','call','linkedin_message','referral_intro','follow_up'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Opportunity source
-CREATE TYPE IF NOT EXISTS opportunity_source AS ENUM (
-  'job_board',
-  'company_website',
-  'referral',
-  'recruiter_outreach',
-  'networking',
-  'career_fair',
-  'cold_outreach'
-);
+DO $$ BEGIN CREATE TYPE opportunity_source AS ENUM (
+  'job_board','company_website','referral','recruiter_outreach','networking','career_fair','cold_outreach'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
--- Opportunity status (pipeline stage)
-CREATE TYPE IF NOT EXISTS opportunity_status AS ENUM (
-  'identified',        -- Just found/saved
-  'researching',       -- Learning about company/role
-  'preparing',         -- Preparing application
-  'applied',           -- Application submitted
-  'interviewing',      -- In interview process
-  'offer',             -- Have an offer
-  'closed_won',        -- Accepted offer
-  'closed_lost',       -- Rejected/withdrew
-  'on_hold'            -- Paused
-);
+DO $$ BEGIN CREATE TYPE opportunity_status AS ENUM (
+  'identified','researching','preparing','applied','interviewing',
+  'offer','closed_won','closed_lost','on_hold'
+); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 -- ============================================================================
 -- TABLES
@@ -628,17 +583,18 @@ ALTER TABLE saved_searches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE search_results ENABLE ROW LEVEL SECURITY;
 
 -- For now, allow all operations (add auth policies later)
-CREATE POLICY IF NOT EXISTS "Allow all" ON companies FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON contacts FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON opportunities FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON job_postings FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON interview_processes FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON interviews FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON communications FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all operations on documents" ON documents FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON job_portals FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON saved_searches FOR ALL USING (true);
-CREATE POLICY IF NOT EXISTS "Allow all" ON search_results FOR ALL USING (true);
+-- PostgreSQL does not support CREATE POLICY IF NOT EXISTS — use DO blocks.
+DO $$ BEGIN CREATE POLICY "Allow all" ON companies FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON contacts FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON opportunities FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON job_postings FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON interview_processes FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON interviews FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON communications FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all operations on documents" ON documents FOR ALL USING (true) WITH CHECK (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON job_portals FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON saved_searches FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
+DO $$ BEGIN CREATE POLICY "Allow all" ON search_results FOR ALL USING (true); EXCEPTION WHEN duplicate_object THEN null; END $$;
 
 -- ============================================================================
 -- INITIAL DATA SEED (Job Portals)

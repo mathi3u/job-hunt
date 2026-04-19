@@ -25,8 +25,8 @@ cd job-tracker
 1. Go to https://supabase.com and create a new project
 2. Wait for the project to initialize (takes about 1 minute)
 3. Go to the SQL Editor tab in your project
-4. Create a new query and paste the contents of `supabase/schema_v2.sql`
-5. Run the query
+4. Create a new query and paste the full contents of `supabase/setup.sql`
+5. Run the query — it creates all tables, views, triggers, and RLS policies in one shot
 6. Go to Settings → API in the left sidebar
 7. Copy your **Project URL** and **anon (public) key** — you'll need these in step 4
 
@@ -66,26 +66,28 @@ Press Ctrl+C to stop the dev server when done testing.
 
 ### 6. Deploy to Vercel
 
-```bash
-vercel
-```
-
-Follow the prompts (link to your Vercel account, select the job-tracker project). Then set the environment variables:
+Run `vercel` to create a new project (follow the prompts, no framework override needed). Then **set environment variables before your first production deploy**:
 
 ```bash
 vercel env add VITE_SUPABASE_URL
-# Paste your Supabase URL
+# Paste your Supabase URL when prompted
 
 vercel env add VITE_SUPABASE_ANON_KEY
-# Paste your Supabase anon key
+# Paste your Supabase anon key when prompted
 
 vercel env add ANTHROPIC_API_KEY
-# Paste your Anthropic API key
+# Paste your Anthropic API key when prompted
+```
 
+Then deploy to production:
+
+```bash
 vercel --prod
 ```
 
 Your app is now live. Note the deployment URL (e.g. `https://job-tracker-abc123.vercel.app`).
+
+> **Important:** `VITE_*` variables must be set in the Vercel project before deploying — they are inlined into the frontend bundle at build time. Passing them via `--env` flags at deploy time does NOT work for `VITE_*` variables.
 
 ### 7. Install and configure the Chrome extension
 
@@ -111,7 +113,7 @@ You're done. Go to any job posting page (LinkedIn, Greenhouse, etc.) and click t
 - Note: API functions have a 30-second timeout. If extraction fails, the extension shows a manual form to fill in the data
 
 **Database errors when saving**
-- Confirm `supabase/schema_v2.sql` ran successfully — check the Supabase dashboard's Table Editor to see if all tables exist
+- Confirm `supabase/setup.sql` ran successfully — check the Supabase dashboard's Table Editor to see if all tables exist
 - Verify `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are correct in Vercel environment variables
 
 **Extension icon doesn't appear in Chrome toolbar**
