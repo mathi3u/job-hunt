@@ -132,7 +132,7 @@
     <p class="subtitle">Configure your Job Tracker connection</p>
 
     <div class="info-box">
-      <p>The extension saves jobs through your Job Tracker app. Make sure the app is running before saving jobs.</p>
+      <p>Paste the URL of your deployed Job Tracker app (e.g. <strong>https://your-app.vercel.app</strong>). For local development use <code>http://localhost:3000</code>.</p>
     </div>
 
     <form id="settings-form">
@@ -141,10 +141,9 @@
         <input
           type="url"
           id="app-url"
-          placeholder="http://localhost:5173"
-          value="http://localhost:5173"
+          placeholder="https://your-app.vercel.app"
         >
-        <p class="hint">URL where your Job Tracker app is running (default: localhost:5173)</p>
+        <p class="hint">Your deployed Vercel URL, or http://localhost:3000 for local dev</p>
       </div>
 
       <button type="submit" class="btn">Save Settings</button>

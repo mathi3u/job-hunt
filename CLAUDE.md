@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start development server (Vite)
+vercel dev       # Full local dev: SPA + /api/* serverless functions on :3000
+npm run dev      # SPA only (no API routes) — fine for frontend-only changes
 npm run build    # TypeScript check + production build
-npm run preview  # Preview production build locally
 npm run lint     # Run ESLint
 ```
 
